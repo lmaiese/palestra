@@ -1,0 +1,18 @@
+import { kg } from '../lib/format';
+
+/** A load shown as a big condensed number with a small unit. */
+export function Kg({ value, size = 'md', className = '' }: { value: number | null | undefined; size?: 'sm' | 'md' | 'lg' | 'xl'; className?: string }) {
+  if (value == null) {
+    return (
+      <span className={`kg kg-${size} kg-none ${className}`} aria-label="nessun carico">
+        —
+      </span>
+    );
+  }
+  return (
+    <span className={`kg kg-${size} ${className}`}>
+      <span className="kg-n">{kg(value)}</span>
+      <span className="kg-u">kg</span>
+    </span>
+  );
+}

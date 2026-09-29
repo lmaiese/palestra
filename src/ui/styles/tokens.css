@@ -1,0 +1,103 @@
+/*
+ * Palestra design tokens.
+ * The UI is monochrome "rubber floor + chalk"; the only saturated colours are the
+ * five anchor lifts, each tied to a competition bumper-plate colour.
+ */
+:root {
+  color-scheme: dark light;
+
+  /* Surfaces: rubber gym floor */
+  --floor: #15181c;
+  --mat: #1d2126;
+  --mat-2: #252a30;
+  --line: #2f353d;
+  --line-strong: #444c56;
+
+  /* Ink: chalk */
+  --chalk: #eeebe3;
+  --chalk-2: #c3c6c9;
+  --steel: #8f98a2;
+
+  /* Signals */
+  --sand: #ddb26f;        /* beach days */
+  --go: #7fcf95;          /* done */
+  --warn: #f08a6c;        /* errors, destructive */
+  --focus: #9cc4ff;
+
+  /* Anchor plates (IWF colours) */
+  --plate-squat: #e34a40;
+  --plate-bench: #3f82e6;
+  --plate-deadlift: #efc13c;
+  --plate-ohp: #3faa66;
+  --plate-pullup: #e8e8e4;
+  --plate-ink: #15181c;
+
+  /* Type */
+  --font: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --narrow: 68%;
+  --semi: 84%;
+  --wide: 112%;
+
+  --fs-xs: 0.8125rem;   /* 13 */
+  --fs-sm: 0.9375rem;   /* 15 */
+  --fs-md: 1.0625rem;   /* 17 */
+  --fs-lg: 1.375rem;    /* 22 */
+  --fs-xl: 1.875rem;    /* 30 */
+  --fs-2xl: 2.75rem;    /* 44 */
+  --fs-3xl: 4.25rem;    /* 68 */
+  --fs-hero: clamp(6rem, 30vw, 10rem);
+
+  /* Space (4px grid) */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s5: 20px;
+  --s6: 24px;
+  --s8: 32px;
+  --s10: 40px;
+  --s12: 48px;
+
+  /* Radii: small for data, round for plates and pills */
+  --r-sm: 6px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-pill: 999px;
+
+  --tap: 48px;
+  --tap-lg: 60px;
+  --nav-h: 68px;
+  --gutter: 16px;
+  --max: 1080px;
+
+  --shadow-pop: 0 18px 40px -12px rgb(0 0 0 / 0.6);
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --floor: #e9ecef;
+    --mat: #f8f9fa;
+    --mat-2: #dfe3e7;
+    --line: #cdd3d9;
+    --line-strong: #a5aeb8;
+
+    --chalk: #14171a;
+    --chalk-2: #3a4148;
+    --steel: #5b6570;
+
+    --sand: #8a5f17;
+    --go: #1d7a3a;
+    --warn: #b3361a;
+    --focus: #1d5fc4;
+
+    --plate-squat: #c7342b;
+    --plate-bench: #2466c9;
+    --plate-deadlift: #d9a514;
+    --plate-ohp: #23864a;
+    --plate-pullup: #ffffff;
+    --plate-ink: #14171a;
+
+    --shadow-pop: 0 18px 40px -16px rgb(20 30 40 / 0.35);
+  }
+}
