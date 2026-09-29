@@ -34,9 +34,10 @@ test('owner logs in, lands on the dashboard and reaches every route', async ({ p
   await nav(page).getByRole('link', { name: 'Oggi' }).click();
   await expect(page.getByText('Settimana 2 di 8')).toBeVisible();
 
-  // Signing out returns to the login.
-  await page.setViewportSize({ width: 1280, height: 800 });
-  await page.getByRole('button', { name: 'Esci' }).click();
+  // Signing out from the phone (Oggi footer) returns to the login and wipes the cache.
+  await page.getByRole('region', { name: 'Account' }).getByRole('button', { name: 'Esci' }).click();
+  await expect(page.getByRole('button', { name: 'Accedi con Google' })).toBeVisible();
+  await page.reload();
   await expect(page.getByRole('button', { name: 'Accedi con Google' })).toBeVisible();
 });
 
@@ -50,8 +51,10 @@ test('register, see it in Storico and in Piano, edit, delete', async ({ page }) 
   await page.getByRole('textbox', { name: 'Back Squat, set 1, kg' }).fill('80');
   await page.getByRole('textbox', { name: 'Back Squat, set 1, ripetizioni' }).fill('5');
   await page.getByRole('textbox', { name: 'Back Squat, set 1, RPE' }).fill('7,5');
-  await page.getByRole('listitem', { name: 'Back Squat' }).getByRole('button', { name: 'Aggiungi set' }).click();
-  await expect(page.getByRole('textbox', { name: 'Back Squat, set 2, kg' })).toHaveValue('80');
+  // Back-off rows are prefilled from "1x5 + 4x5": fill one from the last-load chip.
+  await expect(page.getByRole('textbox', { name: 'Back Squat, set 5, kg' })).toBeVisible();
+  await page.getByRole('button', { name: 'Usa 70 kg nel set 2 di Back Squat' }).click();
+  await expect(page.getByRole('textbox', { name: 'Back Squat, set 2, kg' })).toHaveValue('70');
   await page.getByRole('textbox', { name: 'Back Squat, set 2, kg' }).fill('72,5');
   await page.getByRole('textbox', { name: 'Front Squat, set 1, kg' }).fill('50');
   await page.getByLabel('Note').fill('Gambe fresche');

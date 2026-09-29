@@ -5,6 +5,7 @@ import { AccountProvider, SessionsProvider } from './data';
 import { Login } from '../screens/Login';
 import { Denied } from '../screens/Denied';
 import { FullPageState } from '../components/States';
+import { italianError } from '../lib/errors';
 
 type Gate =
   | { kind: 'init' }
@@ -30,9 +31,14 @@ export function AuthGate({ auth, isOwner, createRepo, children }: Props) {
 
   useEffect(() => {
     let alive = true;
+    // Bumped on every sign-out: a createRepo() that resolves late belongs to an
+    // old sign-in and must not install its repo (it may even be terminated).
+    let generation = 0;
     let started = false;
     const unsub = auth.onChange((user) => {
-      if (!user || !isOwner(user)) {
+      const owner = !!user && isOwner(user);
+      if (!owner) {
+        generation += 1;
         started = false;
         setRepo(null);
       }
@@ -41,7 +47,7 @@ export function AuthGate({ auth, isOwner, createRepo, children }: Props) {
         setGate(deniedRef.current ? { kind: 'denied', email: deniedRef.current } : { kind: 'signedOut' });
         return;
       }
-      if (!isOwner(user)) {
+      if (!owner) {
         deniedRef.current = user.email ?? 'account sconosciuto';
         setGate({ kind: 'denied', email: deniedRef.current });
         void auth.signOut();
@@ -52,10 +58,15 @@ export function AuthGate({ auth, isOwner, createRepo, children }: Props) {
       if (started) return;
       // Only now, for the verified owner, is the data layer created (DoD S3).
       started = true;
+      const mine = generation;
       setRepoError(null);
       createRepo().then(
-        (r) => alive && setRepo(r),
-        (e: Error) => alive && setRepoError(e.message || 'Impossibile aprire l’archivio'),
+        (r) => {
+          if (alive && mine === generation) setRepo(r);
+        },
+        (e: unknown) => {
+          if (alive && mine === generation) setRepoError(italianError(e, 'Impossibile aprire l’archivio.'));
+        },
       );
     });
     return () => {
@@ -70,7 +81,7 @@ export function AuthGate({ auth, isOwner, createRepo, children }: Props) {
     try {
       await auth.signIn();
     } catch (e) {
-      setSignInError(messageFor(e));
+      setSignInError(italianError(e, 'Accesso non riuscito. Riprova.'));
     } finally {
       setBusy(false);
     }
@@ -102,18 +113,11 @@ export function AuthGate({ auth, isOwner, createRepo, children }: Props) {
           />
         );
       }
-      if (!repo) return <FullPageState kind="loading" title="Carico i tuoi allenamenti" />;
+      if (!repo) return <FullPageState kind="loading" title="Carico gli allenamenti" />;
       return (
-        <AccountProvider value={{ email: gate.email, signOut: () => void auth.signOut() }}>
+        <AccountProvider value={{ email: gate.email, signOut: () => auth.signOutAndClear() }}>
           <SessionsProvider repo={repo}>{children}</SessionsProvider>
         </AccountProvider>
       );
   }
-}
-
-function messageFor(e: unknown): string {
-  const code = (e as { code?: string }).code ?? '';
-  if (code === 'auth/network-request-failed') return 'Nessuna connessione. Riprova quando sei online.';
-  if (code === 'auth/unauthorized-domain') return 'Dominio non autorizzato per l’accesso.';
-  return 'Accesso non riuscito. Riprova.';
 }

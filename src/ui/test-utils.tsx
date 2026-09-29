@@ -53,10 +53,11 @@ export function renderStatic(state: SessionsApi['state'], opts: { path?: string;
 }
 
 /** A repo whose listener always fails. */
-export function failingRepo(message = 'permission-denied'): SessionRepo {
+export function failingRepo(code = 'permission-denied'): SessionRepo {
+  const message = `FirebaseError: [code=${code}] raw trace`;
   return {
     subscribe(_onData, onError) {
-      queueMicrotask(() => onError(new Error(message)));
+      queueMicrotask(() => onError(Object.assign(new Error(message), { code })));
       return () => {};
     },
     save: async () => {

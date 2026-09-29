@@ -1,11 +1,11 @@
 import { useCallback, useState } from 'react';
-import { personalBest } from '../../domain/stats';
 import { getSession, plan } from '../../domain/plan';
 import { useSessions } from '../app/data';
 import { useToast } from '../app/toast';
+import { italianError } from '../lib/errors';
 import { href, navigate } from '../lib/router';
-import { capitalize, kg, longDate } from '../lib/format';
-import { sessionRef, sessionTitle, setLabel, topKg } from '../lib/summary';
+import { capitalize, longDate } from '../lib/format';
+import { isRecordOn, sessionRef, sessionTitle, setLabel, topKg } from '../lib/summary';
 import { Plate } from '../components/Plate';
 import { Kg } from '../components/Kg';
 import { StateBlock } from '../components/States';
@@ -55,7 +55,7 @@ export function SessionDetail({ id }: { id: string }) {
       toast('Seduta eliminata');
       navigate('/storico', { force: true, replace: true });
     } catch (e) {
-      setError(`Eliminazione non riuscita: ${(e as Error).message}`);
+      setError(`Eliminazione non riuscita. ${italianError(e)}`);
       setConfirming(false);
     } finally {
       setBusy(false);
@@ -83,8 +83,7 @@ export function SessionDetail({ id }: { id: string }) {
       <ol className="detail-list">
         {s.exercises.map((ex, i) => {
           const top = topKg(ex);
-          const best = personalBest(state.sessions, ex.exerciseId);
-          const isPr = top != null && best != null && best.kg === top && best.date === s.date;
+          const isPr = top != null && top > 0 && isRecordOn(state.sessions, ex.exerciseId, s.date);
           const anchor = plan.anchors.includes(ex.exerciseId);
           const rx = planned?.exercises.find((p) => p.exerciseId === ex.exerciseId)?.prescription;
           return (
@@ -103,7 +102,7 @@ export function SessionDetail({ id }: { id: string }) {
               <ul className="setchips" aria-label={`Set di ${ex.name}`}>
                 {ex.sets.map((st, j) => (
                   <li key={j} className="setchip">
-                    {setLabel(st, kg)}
+                    {setLabel(st)}
                   </li>
                 ))}
               </ul>
@@ -135,8 +134,8 @@ export function SessionDetail({ id }: { id: string }) {
         <a className="btn btn-primary" href={href(`/registra/${s.id}`)}>
           <IconEdit width={20} height={20} /> Modifica
         </a>
-        <button type="button" className="btn btn-danger-quiet" onClick={() => setConfirming(true)}>
-          <IconTrash width={20} height={20} /> Elimina
+        <button type="button" className="btn-text btn-text-danger" onClick={() => setConfirming(true)}>
+          <IconTrash width={18} height={18} /> Elimina seduta
         </button>
       </div>
 

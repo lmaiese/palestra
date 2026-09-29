@@ -7,7 +7,7 @@ import { isOwner } from '../../firebase';
 import { createMemoryRepo } from '../../domain/repo';
 import type { AuthAdapter, AuthUser } from './auth';
 import { AuthGate } from './AuthGate';
-import { useSessions } from './data';
+import { useAccount, useSessions } from './data';
 
 function fakeAuth() {
   let cb: ((u: AuthUser | null) => void) | null = null;
@@ -20,6 +20,9 @@ function fakeAuth() {
     },
     signIn: vi.fn(async () => {}),
     signOut: vi.fn(async () => {
+      cb?.(null);
+    }),
+    signOutAndClear: vi.fn(async () => {
       cb?.(null);
     }),
     emit(u) {
@@ -89,6 +92,41 @@ describe('AuthGate', () => {
     expect(createRepo).toHaveBeenCalledOnce();
   });
 
+  it('ignores a repo that resolves after sign-out', async () => {
+    const auth = fakeAuth();
+    let resolve!: (r: ReturnType<typeof createMemoryRepo>) => void;
+    const createRepo = vi.fn(() => new Promise<ReturnType<typeof createMemoryRepo>>((r) => (resolve = r)));
+    render(
+      <AuthGate auth={auth} isOwner={isOwner} createRepo={createRepo}>
+        <Probe />
+      </AuthGate>,
+    );
+    auth.emit(owner);
+    expect(screen.getByText('Carico gli allenamenti')).toBeInTheDocument();
+    auth.emit(null);
+    await act(async () => resolve(createMemoryRepo()));
+    expect(screen.getByRole('button', { name: 'Accedi con Google' })).toBeInTheDocument();
+    expect(screen.queryByText(/stato:/)).not.toBeInTheDocument();
+  });
+
+  it('owner sign-out clears the local cache', async () => {
+    const auth = fakeAuth();
+    function Out() {
+      const acc = useAccount();
+      return <button onClick={() => void acc?.signOut()}>Esci</button>;
+    }
+    render(
+      <AuthGate auth={auth} isOwner={isOwner} createRepo={async () => createMemoryRepo()}>
+        <Out />
+      </AuthGate>,
+    );
+    auth.emit(owner);
+    await userEvent.click(await screen.findByRole('button', { name: 'Esci' }));
+    expect(auth.signOutAndClear).toHaveBeenCalledOnce();
+    expect(auth.signOut).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Accedi con Google' })).toBeInTheDocument();
+  });
+
   it('shows an error when the repo cannot be created', async () => {
     const auth = fakeAuth();
     render(
@@ -98,5 +136,6 @@ describe('AuthGate', () => {
     );
     auth.emit(owner);
     expect(await screen.findByRole('alert')).toHaveTextContent('Archivio non raggiungibile');
+    expect(screen.queryByText('offline')).not.toBeInTheDocument();
   });
 });

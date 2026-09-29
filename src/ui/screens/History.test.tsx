@@ -28,6 +28,7 @@ describe('Storico', () => {
     ]);
     expect(rows[1]).toHaveTextContent('Back Squat 70');
     expect(rows[2]).toHaveTextContent('Hinge + Power');
+    expect(rows[2]).toHaveTextContent('Ridotto perché giocavo a beach');
     expect(screen.getByText('3 sedute registrate')).toBeInTheDocument();
   });
 
@@ -39,6 +40,8 @@ describe('Storico', () => {
     expect(screen.getByText('3 × (250 m row + swing 20 kg)')).toBeInTheDocument();
     expect(within(screen.getByRole('list', { name: 'Set di Bulgarian Split Squat' })).getAllByRole('listitem')).toHaveLength(2);
     expect(screen.getByRole('link', { name: /Modifica/ })).toHaveAttribute('href', '#/registra/2026-09-25-w1-C');
+    // First time an exercise is logged: no Record badge.
+    expect(screen.queryByText('Record')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Elimina/ }));
     const dialog = screen.getByRole('alertdialog', { name: 'Eliminare la seduta?' });
@@ -66,6 +69,36 @@ describe('Storico', () => {
     expect(within(rows[0]).getByText('PR')).toBeInTheDocument();
     expect(rows[1]).toHaveTextContent('70 @7');
     expect(screen.getByText('Record', { selector: 'dt' })).toBeInTheDocument();
+  });
+
+  it('a later heavier lift is a Record in the session detail', async () => {
+    renderApp({ path: '/storico/2026-10-05-w2-A', sessions: [...seedSessions, later] });
+    expect(await screen.findByText('Record')).toBeInTheDocument();
+  });
+
+  it('bodyweight history reads "corpo libero", with no 0 kg record', async () => {
+    const bw: WorkoutSession = {
+      ...later,
+      id: '2026-10-06-w2-B',
+      date: '2026-10-06',
+      day: 'B',
+      exercises: [{ exerciseId: 'pull-up', name: 'Pull-up', sets: [{ weightKg: 0, reps: 8, rpe: null }], notes: '' }],
+    };
+    renderApp({ path: '/esercizio/pull-up', sessions: [bw] });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Pull-up' })).toBeInTheDocument();
+    expect(screen.getAllByText('corpo libero').length).toBeGreaterThan(0);
+    expect(screen.getByText('corpo libero ×8')).toBeInTheDocument();
+    expect(screen.queryByText('PR')).not.toBeInTheDocument();
+    expect(screen.queryByRole('img', { name: /carico massimo/ })).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/\b0 kg/);
+  });
+
+  it('exercise page: loading and error states', async () => {
+    const a = renderStatic({ status: 'loading', sessions: [] }, { path: '/esercizio/back-squat' });
+    expect(screen.getByText('Carico lo storico')).toBeInTheDocument();
+    a.unmount();
+    renderApp({ path: '/esercizio/back-squat', repo: failingRepo('unavailable') });
+    expect(await screen.findByRole('alert')).toHaveTextContent('Server non raggiungibile');
   });
 
   it('has loading, empty and error states', async () => {

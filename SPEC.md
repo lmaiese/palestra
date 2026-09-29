@@ -25,46 +25,77 @@ Niente Cloud Functions, niente Storage, niente Realtime Database: su Spark non s
 Tipi: `src/domain/types.ts` (fonte di verità). Funzioni che il dominio espone e la UI consuma:
 
 ```ts
-// src/domain/plan.ts
+// src/domain/plan.ts            (nessun import Firebase)
 export const plan: Plan;                                   // da src/data/plan.json
 export function getWeek(n: number): PlanWeek | undefined;
 export function getSession(week: number, day: DayId): PlanSession | undefined;
 export function weekForDate(isoDate: string): number | null; // 1..8 dentro il ciclo, null fuori
 export function defaultDayForDate(isoDate: string): DayId | null; // lun→A, mar→B, ven→C, altri null
+export function isAnchor(exerciseId: string): boolean;
+
+// src/domain/dates.ts           (date ISO senza fusi orari: componenti esplicite, calcoli in UTC)
+export function todayIso(now?: Date): string;               // giorno locale dell'utente
+export function formatShortDate(iso: string): string;       // "2026-09-28" → "28/09"
+export function isValidIsoDate(s: unknown): s is string;
+export function weekdayOf(iso: string): number;             // 0 = domenica
+export function addDays(iso: string, n: number): string;
+export function daysBetween(a: string, b: string): number;
 
 // src/domain/exercises.ts
 export function canonicalExerciseId(rawName: string): string;  // "Back Squat TEST 3RM"→"back-squat", "DL"→"deadlift", "Pallor press"→"pallof-press"
 export function exerciseDisplayName(exerciseId: string): string;
 
 // src/domain/validation.ts  (specchio delle regole Firestore)
+export const LIMITS;                                          // kg 0–500, reps 0–100, RPE 1–10, 30 esercizi, 20 set, testi 2000
 export function validateSession(input: WorkoutSessionInput): string[]; // [] = valida, altrimenti messaggi in italiano
+// Corpo libero: weightKg 0 = set a corpo libero, e allora reps ≥ 1 è obbligatorio (0 kg senza reps = non valido).
 
-// src/domain/stats.ts
+// src/domain/stats.ts           (nessun import Firebase)
+export interface LoadRef { kg: number; date: string; reps: number | null; bodyweight: boolean } // bodyweight = kg === 0
 export function exerciseHistory(sessions: WorkoutSession[], exerciseId: string):
-  { date: string; sessionId: string; topKg: number; sets: LoggedSet[] }[]; // cronologico
-export function personalBest(sessions: WorkoutSession[], exerciseId: string): { kg: number; date: string } | null;
-export function lastLoad(sessions: WorkoutSession[], exerciseId: string, beforeDate?: string): { kg: number; date: string } | null;
+  { date: string; sessionId: string; topKg: number; topReps: number | null; sets: LoggedSet[] }[]; // cronologico
+export function personalBest(sessions: WorkoutSession[], exerciseId: string): LoadRef | null; // più kg, poi più reps
+export function lastLoad(sessions: WorkoutSession[], exerciseId: string, beforeDate?: string): LoadRef | null;
+// Con storico solo a corpo libero: { kg: 0, reps: migliori reps, bodyweight: true } → la UI mostra "corpo libero", mai "0 kg".
 export function weekCompletion(sessions: WorkoutSession[], week: number): Record<DayId, WorkoutSession | null>;
-export function sessionFromPlan(week: number, day: DayId, date: string): WorkoutSessionInput; // precompila esercizi (sets vuoti)
+// Conta una seduta solo se la sua DATA cade in [startDate, endDate] della settimana del piano (l'etichetta week è ignorata); vince la più recente.
+export function sessionFromPlan(week: number, day: DayId, date: string): WorkoutSessionInput; // precompila esercizi (sets vuoti, conditioning esclusi)
 
 // src/domain/sessionId.ts
 export function sessionIdFor(date: string, week: number | null, day: DayId | null): string; // "2026-09-28-w1-A", "2026-09-30-extra"
+export function idForSave(date, week, day, id: string | undefined, known: ReadonlySet<string>): string; // suffisso -2, -3 se occupato
+// Formato id ammesso anche dalle regole: ^AAAA-MM-GG-(w[1-8]-[ABC]|extra)(-N)?$
 
 // src/domain/seed.ts
 export const seedSessions: WorkoutSession[]; // i due allenamenti già fatti
 
 // src/domain/repo.ts
 export interface SessionRepo {
-  subscribe(onData: (s: WorkoutSession[]) => void, onError: (e: Error) => void): () => void;
-  save(input: WorkoutSessionInput, id?: string): Promise<string>;
+  subscribe(onData: (s: WorkoutSession[]) => void, onError: (e: Error) => void): () => void; // data desc, notifiche asincrone
+  save(input: WorkoutSessionInput, id?: string): Promise<string>; // ritorna l'id in cui la seduta ora vive
   remove(id: string): Promise<void>;
 }
-export function createFirestoreRepo(db: Firestore): SessionRepo;
-export function createMemoryRepo(initial?: WorkoutSession[]): SessionRepo; // per test e UI dev
+export class ValidationError extends Error { readonly errors: string[] } // save() la lancia prima di scrivere
+export function createFirestoreRepo(db: Firestore, options?: { ackTimeoutMs?: number }): SessionRepo;
+export function createMemoryRepo(initial?: WorkoutSession[]): SessionRepo; // per test e UI dev, stessa semantica
+// save():
+// - senza id: id derivato da data/settimana/giorno (idForSave);
+// - con id, se data/settimana/giorno non corrispondono più all'id: la seduta si SPOSTA sul nuovo id
+//   (batch atomico: scrive il nuovo documento e cancella il vecchio) e save ritorna il nuovo id;
+// - online attende l'ack del server al massimo 3 s, poi risolve comunque (la scrittura è già nella cache locale);
+//   offline risolve subito; gli errori arrivati dopo finiscono in onError dei subscriber.
+// Un solo listener onSnapshot condiviso su `sessions` ordinato per data.
 
-// src/firebase.ts
+// src/firebase.ts                (app + Auth, nessun import Firestore)
 export const OWNER_EMAIL = 'maieseluigi@gmail.com';
 export function isOwner(user: { email: string | null; emailVerified: boolean; providerData: { providerId: string }[] } | null): boolean;
+export function getFirebaseApp(): FirebaseApp;
+export function getAuthInstance(): Auth;                     // authDomain = palestra-luigi.web.app
+
+// src/firebase-db.ts             (caricato con import dinamico dopo il controllo owner)
+export function getDb(): Firestore;                          // persistentLocalCache + multi-tab
+export function signOutAndClear(): Promise<void>;            // terminate + clearIndexedDbPersistence + signOut
+// Dopo signOutAndClear il repo precedente non è più utilizzabile: crearne uno nuovo al prossimo login.
 ```
 
 ## Dati iniziali (seed)
@@ -74,7 +105,7 @@ export function isOwner(user: { email: string | null; emailVerified: boolean; pr
 | `2026-09-25-w1-C` | 2026-09-25 | Sett 1, C | Hang Power Clean 50; Deadlift 70; Bulgarian Split Squat 30 ×2 set. Conditioning: 3 × (250 m row + swing 20 kg). Note: "Ridotto perché giocavo a beach" |
 | `2026-09-28-w1-A` | 2026-09-28 | Sett 1, A | Back Squat 70 @RPE 7; Hip Thrust 70; Pallof Press 20 |
 
-Reps non registrate = `null`. La seduta del 25/09 è precedente all'inizio ufficiale del ciclo (28/09): il riferimento settimana/giorno è esplicito sul documento, non derivato dalla data.
+Reps non registrate = `null`. La seduta del 25/09 è precedente all'inizio ufficiale del ciclo (28/09): il riferimento settimana/giorno è esplicito sul documento, non derivato dalla data. Per il completamento della settimana conta però la data: la seduta del 25/09 resta nello storico ma non segna C come fatta nella settimana 1.
 
 ## Definition of Done
 
@@ -106,7 +137,7 @@ Ogni voce ha un comando o un controllo che la verifica. Il loop si chiude solo c
 | S4 | API key browser ristretta per referrer a `palestra-luigi.web.app`, `palestra-luigi.firebaseapp.com`, `localhost` | `gcloud services api-keys describe` |
 | S5 | Header di sicurezza in hosting: CSP, `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`, `Referrer-Policy`, `Permissions-Policy`, HSTS | `curl -sI https://palestra-luigi.web.app` |
 | S6 | Richiesta REST non autenticata a `sessions` → `PERMISSION_DENIED` in produzione | `curl` sull'endpoint Firestore REST |
-| S7 | Nessun segreto nel repo (la config web Firebase è pubblica per design); nessun codice di test/emulatore nel bundle di produzione | `grep` su `dist/` per `emulator`, `127.0.0.1`, `__test` |
+| S7 | Nessun segreto nel repo (la config web Firebase è pubblica per design); nessun codice di test/emulatore nel bundle di produzione | `grep` su `dist/` per `127.0.0.1` e `demo-palestra` (non "emulator": l'SDK Firebase contiene stringhe come `emulatorConfig`) |
 
 ### Costo (C)
 

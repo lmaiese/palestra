@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { SESSION_ID_RE, sessionIdFor, uniqueSessionId } from './sessionId';
+import { idForSave, SESSION_ID_RE, sessionIdFor, uniqueSessionId } from './sessionId';
 
 describe('sessionIdFor', () => {
   it('builds planned and extra ids', () => {
@@ -15,5 +15,22 @@ describe('sessionIdFor', () => {
     expect(SESSION_ID_RE.test('2026-09-28-w1-A')).toBe(true);
     expect(SESSION_ID_RE.test('2026-09-30-extra-2')).toBe(true);
     expect(SESSION_ID_RE.test('2026-09-30-w9-A')).toBe(false);
+  });
+});
+
+describe('idForSave', () => {
+  const known = new Set(['2026-09-28-w1-A', '2026-09-28-w1-A-2', '2026-09-29-w1-B']);
+  it('derives a unique id for new sessions', () => {
+    expect(idForSave('2026-09-28', 1, 'A', undefined, known)).toBe('2026-09-28-w1-A-3');
+    expect(idForSave('2026-09-30', null, null, undefined, known)).toBe('2026-09-30-extra');
+  });
+  it('keeps the id while date/week/day still match', () => {
+    expect(idForSave('2026-09-28', 1, 'A', '2026-09-28-w1-A', known)).toBe('2026-09-28-w1-A');
+    expect(idForSave('2026-09-28', 1, 'A', '2026-09-28-w1-A-2', known)).toBe('2026-09-28-w1-A-2');
+  });
+  it('moves to a new id when date/week/day change', () => {
+    expect(idForSave('2026-09-29', 1, 'B', '2026-09-28-w1-A', known)).toBe('2026-09-29-w1-B-2');
+    expect(idForSave('2026-09-28', null, null, '2026-09-28-w1-A', known)).toBe('2026-09-28-extra');
+    expect(idForSave('2026-09-28', 1, 'A', '2026-09-28-w1-Ax', new Set())).toBe('2026-09-28-w1-A');
   });
 });

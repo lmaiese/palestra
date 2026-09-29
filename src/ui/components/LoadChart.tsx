@@ -73,16 +73,9 @@ export function LoadChart({ points, color, prKg, label }: Props) {
 
   return (
     <figure className="chart">
-      <div className="chart-readout" aria-live="polite">
-        <span className="chart-readout-kg">
-          {kg(current.topKg)}
-          <small>kg</small>
-        </span>
-        <span className="chart-readout-date">
-          {shortDate(current.date)}
-          {prKg != null && current.topKg === prKg && <span className="badge-pr">Record</span>}
-        </span>
-      </div>
+      <p className="sr-only" aria-live="polite">
+        {picked != null ? `${shortDate(current.date)}: ${kg(current.topKg)} kg` : ''}
+      </p>
       <div ref={wrap} className="chart-wrap">
         <svg width={w} height={H} role="img" aria-label={summary} className="chart-svg">
           {ticks.map((t) => (
@@ -127,6 +120,17 @@ export function LoadChart({ points, color, prKg, label }: Props) {
               </g>
             );
           })}
+          {picked != null && (
+            <g className="chart-tip" aria-hidden="true">
+              <text
+                x={Math.min(Math.max(x(sel), PAD.l + 36), w - PAD.r - 36)}
+                y={Math.max(14, y(current.topKg) - 14)}
+                textAnchor="middle"
+              >
+                {kg(current.topKg)} kg · {shortDate(current.date)}
+              </text>
+            </g>
+          )}
         </svg>
       </div>
       <figcaption className="sr-only">{summary}</figcaption>

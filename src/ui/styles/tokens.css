@@ -31,6 +31,7 @@
   --plate-ohp: #3faa66;
   --plate-pullup: #e8e8e4;
   --plate-ink: #15181c;
+  --plate-edge: transparent;
 
   /* Type */
   --font: 'Archivo Variable', 'Archivo', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -97,6 +98,7 @@
     --plate-ohp: #23864a;
     --plate-pullup: #ffffff;
     --plate-ink: #14171a;
+    --plate-edge: #8b95a0;
 
     --shadow-pop: 0 18px 40px -16px rgb(20 30 40 / 0.35);
   }

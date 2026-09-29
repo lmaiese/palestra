@@ -1,25 +1,17 @@
-// Weekly schedule derived from the plan (Mon A, Tue B, Wed/Thu beach, Fri C, weekend rest).
+// Weekly schedule derived from the plan. Session days come from the domain
+// (defaultDayForDate: Mon A, Tue B, Fri C); the rest is beach (Wed/Thu) or rest.
+import { defaultDayForDate } from '../../domain/plan';
+import { addDays, weekdayOf } from '../../domain/dates';
 import type { DayId, PlanWeek } from '../../domain/types';
-import { addDays, parseISO } from './format';
 
 export type DayKind = { kind: 'session'; day: DayId } | { kind: 'beach' } | { kind: 'rest'; maybeBeach: boolean };
 
 export function kindForDate(iso: string): DayKind {
-  switch (parseISO(iso).getDay()) {
-    case 1:
-      return { kind: 'session', day: 'A' };
-    case 2:
-      return { kind: 'session', day: 'B' };
-    case 3:
-    case 4:
-      return { kind: 'beach' };
-    case 5:
-      return { kind: 'session', day: 'C' };
-    case 6:
-      return { kind: 'rest', maybeBeach: true };
-    default:
-      return { kind: 'rest', maybeBeach: false };
-  }
+  const day = defaultDayForDate(iso);
+  if (day) return { kind: 'session', day };
+  const wd = weekdayOf(iso);
+  if (wd === 3 || wd === 4) return { kind: 'beach' };
+  return { kind: 'rest', maybeBeach: wd === 6 };
 }
 
 export function weekDays(week: PlanWeek): string[] {

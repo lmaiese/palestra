@@ -3,6 +3,7 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import type { SessionRepo } from '../../domain/repo';
 import type { WorkoutSession, WorkoutSessionInput } from '../../domain/types';
 import { todayISO } from '../lib/format';
+import { italianError } from '../lib/errors';
 
 export type SessionsState =
   | { status: 'loading'; sessions: WorkoutSession[] }
@@ -39,7 +40,7 @@ export function SessionsProvider({ repo, children }: { repo: SessionRepo; childr
         setState((prev) => ({
           status: 'error',
           sessions: prev.sessions,
-          error: e.message || 'Errore sconosciuto',
+          error: italianError(e, 'Non riesco a leggere gli allenamenti.'),
         })),
     );
     return unsub;
@@ -94,7 +95,7 @@ export function useToday(): string {
 // Account info for the shell (sign-out button, email).
 export interface Account {
   email: string;
-  signOut(): void;
+  signOut(): Promise<void> | void;
 }
 const AccountContext = createContext<Account | null>(null);
 export const AccountProvider = AccountContext.Provider;

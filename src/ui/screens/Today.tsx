@@ -1,9 +1,10 @@
 import { useMemo } from 'react';
 import { getSession, getWeek, plan, weekForDate } from '../../domain/plan';
 import { exerciseDisplayName } from '../../domain/exercises';
-import { lastLoad, personalBest, weekCompletion } from '../../domain/stats';
+import { lastLoad, weekCompletion } from '../../domain/stats';
+import { loadRecord } from '../lib/summary';
 import type { DayId, PlanWeek, WorkoutSession } from '../../domain/types';
-import { useSessions, useToday } from '../app/data';
+import { useAccount, useSessions, useToday } from '../app/data';
 import { href } from '../lib/router';
 import { capitalize, addDays, dayMonth, kg, dayOfMonth, daysBetween, longDate, shortDate, weekdayLetter } from '../lib/format';
 import { DAY_ORDER, DAY_WEEKDAY, kindForDate, weekDays } from '../lib/schedule';
@@ -47,7 +48,7 @@ export function Today() {
             Piano della settimana
           </a>
         </div>
-        <WeekStrip week={displayWeek} today={today} completion={completion} loading={state.status === 'loading'} />
+        <WeekStrip week={displayWeek} today={today} completion={completion} loading={state.status === 'loading'} started={!before} />
         <div className="week-brief">
           <p>
             <strong>Obiettivo.</strong> {displayWeek.objective}
@@ -65,9 +66,26 @@ export function Today() {
           <h2 id="h-anchors">Anchor</h2>
           <span className="muted small">ultimo carico e record</span>
         </div>
-        <Anchors sessions={sessions} status={state.status} error={state.status === 'error' ? state.error : ''} />
+        <Anchors sessions={sessions.filter((x) => x.date <= today)} status={state.status} error={state.status === 'error' ? state.error : ''} />
       </section>
+
+      <AccountFooter />
     </div>
+  );
+}
+
+function AccountFooter() {
+  const account = useAccount();
+  if (!account) return null;
+  return (
+    <section className="account-foot" aria-label="Account">
+      <p>
+        Connesso come <b>{account.email}</b>
+      </p>
+      <button type="button" className="btn btn-quiet btn-sm" onClick={() => void account.signOut()}>
+        Esci
+      </button>
+    </section>
   );
 }
 
@@ -112,8 +130,10 @@ function TodayHero({
           {kind.kind === 'beach'
             ? 'Oggi si gioca in sabbia. Niente pesi: il beach vince sempre.'
             : kind.maybeBeach
-              ? 'Riposo, o terzo beach se organizzi una partita. Se giochi, la C di ieri era da fare in versione C-Lite.'
-              : 'Riposo completo. Domani si riparte con la seduta A.'}
+              ? 'Riposo, o terzo beach se organizzi una partita.'
+              : weekForDate(addDays(today, 1)) !== null
+                ? 'Riposo completo. Domani si riparte con la seduta A.'
+                : 'Riposo completo. Ultimo giorno del ciclo: fai la verifica di fine ciclo.'}
         </p>
         {next && (
           <a className="next-up" href={href(`/piano/${next.week}/${next.day}`)}>
@@ -162,6 +182,15 @@ function TodayHero({
           </li>
         ))}
       </ul>
+      {kind.day === 'C' && !done && (
+        <p className="callout">
+          <strong>Sabato giochi?</strong> Fai C-Lite: togli stacco pesante, clean e salti; tieni Overhead Press, tirata, core e
+          conditioning in zona 2.{' '}
+          <a className="link" href={href('/regole?s=c-lite')}>
+            Regola C-Lite
+          </a>
+        </p>
+      )}
       {done ? (
         <div className="hero-actions">
           <a className="btn btn-primary btn-xl" href={href(`/storico/${done.id}`)}>
@@ -242,25 +271,27 @@ function WeekStrip({
   today,
   completion,
   loading,
+  started,
 }: {
   week: PlanWeek;
   today: string;
   completion: Record<DayId, WorkoutSession | null>;
   loading: boolean;
+  started: boolean;
 }) {
   const days = weekDays(week);
   const doneCount = DAY_ORDER.filter((d) => completion[d]).length;
   return (
     <>
-      <p className="sr-only">
-        Sedute completate questa settimana: {loading ? 'in caricamento' : `${doneCount} di 3`}
-      </p>
+      {started && (
+        <p className="sr-only">Sedute completate questa settimana: {loading ? 'in caricamento' : `${doneCount} di 3`}</p>
+      )}
       <ol className="strip" aria-label={`Settimana ${week.number}, giorno per giorno`}>
         {days.map((iso) => {
           const k = kindForDate(iso);
           const isToday = iso === today;
           const sess = k.kind === 'session' ? completion[k.day] : null;
-          const status = k.kind === 'session' ? (sess ? 'done' : iso < today ? 'missed' : 'todo') : k.kind;
+          const status = k.kind === 'session' ? (sess ? 'done' : started && iso < today ? 'missed' : 'todo') : k.kind;
           const label =
             k.kind === 'session'
               ? `${k.day}${sess ? ', fatta' : iso < today ? ', non registrata' : ''}`
@@ -283,7 +314,7 @@ function WeekStrip({
                     k.day
                   )
                 ) : k.kind === 'beach' ? (
-                  <IconSand width={16} height={16} />
+                  <IconSand width={24} height={24} />
                 ) : (
                   <span className="strip-dot" />
                 )}
@@ -312,7 +343,7 @@ function WeekStrip({
         })}
       </ol>
       <p className="strip-summary" aria-hidden="true">
-        {loading ? 'Carico le sedute' : `${doneCount} di 3 sedute registrate`}
+        {!started ? 'Il ciclo parte lunedì 28 settembre.' : loading ? 'Carico gli allenamenti' : `${doneCount} di 3 sedute registrate`}
       </p>
     </>
   );
@@ -320,7 +351,7 @@ function WeekStrip({
 
 function Anchors({ sessions, status, error }: { sessions: WorkoutSession[]; status: string; error: string }) {
   const { retry } = useSessions();
-  if (status === 'loading') return <StateBlock kind="loading" title="Carico i tuoi carichi" />;
+  if (status === 'loading') return <StateBlock kind="loading" title="Carico gli allenamenti" />;
   if (status === 'error' && sessions.length === 0)
     return <StateBlock kind="error" title="Non riesco a leggere lo storico" detail={error} action={{ label: 'Riprova', onClick: retry }} />;
   const any = plan.anchors.some((a) => lastLoad(sessions, a));
@@ -329,7 +360,7 @@ function Anchors({ sessions, status, error }: { sessions: WorkoutSession[]; stat
       <ul className="anchor-list">
         {plan.anchors.map((id) => {
           const last = lastLoad(sessions, id);
-          const best = personalBest(sessions, id);
+          const best = loadRecord(sessions, id);
           return (
             <li key={id}>
               <a className="anchor-row" href={href(`/esercizio/${id}`)}>
@@ -338,6 +369,7 @@ function Anchors({ sessions, status, error }: { sessions: WorkoutSession[]; stat
                   <span className="anchor-title">{exerciseDisplayName(id)}</span>
                   <span className="anchor-meta">
                     {last ? `ultima ${shortDate(last.date)}` : 'mai registrato'}
+                    {last?.bodyweight && last.reps != null && ` · ${last.reps} rep`}
                     {best && ` · record ${kg(best.kg)} kg`}
                   </span>
                 </span>

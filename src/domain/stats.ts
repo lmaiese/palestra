@@ -1,12 +1,38 @@
 // Pure statistics over logged sessions. Must not import Firebase (cost DoD C3).
-import { getSession } from './plan';
+import { getSession, getWeek } from './plan';
 import type { DayId, LoggedSet, WorkoutSession, WorkoutSessionInput } from './types';
 
 export interface HistoryPoint {
   date: string;
   sessionId: string;
+  /** Heaviest load of the day; 0 = bodyweight only. */
   topKg: number;
+  /** Most reps done at topKg (null when not logged). */
+  topReps: number | null;
   sets: LoggedSet[];
+}
+
+/** A reference load. `bodyweight` is true when kg === 0 (corpo libero): show reps, not "0 kg". */
+export interface LoadRef {
+  kg: number;
+  date: string;
+  reps: number | null;
+  bodyweight: boolean;
+}
+
+function topRepsAt(sets: LoggedSet[], kg: number): number | null {
+  const reps = sets.filter((s) => s.weightKg === kg && s.reps !== null).map((s) => s.reps as number);
+  return reps.length ? Math.max(...reps) : null;
+}
+
+function toRef(p: HistoryPoint): LoadRef {
+  return { kg: p.topKg, date: p.date, reps: p.topReps, bodyweight: p.topKg === 0 };
+}
+
+/** True when `a` beats `b`: more kg, or same kg and more reps. */
+function better(a: HistoryPoint, b: HistoryPoint): boolean {
+  if (a.topKg !== b.topKg) return a.topKg > b.topKg;
+  return (a.topReps ?? -1) > (b.topReps ?? -1);
 }
 
 function byDateAsc(a: WorkoutSession, b: WorkoutSession): number {
@@ -19,36 +45,38 @@ export function exerciseHistory(sessions: WorkoutSession[], exerciseId: string):
   for (const s of [...sessions].sort(byDateAsc)) {
     const sets = s.exercises.filter((e) => e.exerciseId === exerciseId).flatMap((e) => e.sets);
     if (sets.length === 0) continue;
-    out.push({ date: s.date, sessionId: s.id, topKg: Math.max(...sets.map((x) => x.weightKg)), sets });
+    const topKg = Math.max(...sets.map((x) => x.weightKg));
+    out.push({ date: s.date, sessionId: s.id, topKg, topReps: topRepsAt(sets, topKg), sets });
   }
   return out;
 }
 
-/** Heaviest load ever logged (earliest date on ties). */
-export function personalBest(sessions: WorkoutSession[], exerciseId: string): { kg: number; date: string } | null {
-  let best: { kg: number; date: string } | null = null;
+/** Best load ever logged: most kg, then most reps; earliest date on ties. */
+export function personalBest(sessions: WorkoutSession[], exerciseId: string): LoadRef | null {
+  let best: HistoryPoint | null = null;
   for (const p of exerciseHistory(sessions, exerciseId)) {
-    if (!best || p.topKg > best.kg) best = { kg: p.topKg, date: p.date };
+    if (!best || better(p, best)) best = p;
   }
-  return best;
+  return best ? toRef(best) : null;
 }
 
 /** Top load of the most recent session with this exercise, strictly before `beforeDate` if given. */
-export function lastLoad(
-  sessions: WorkoutSession[],
-  exerciseId: string,
-  beforeDate?: string,
-): { kg: number; date: string } | null {
+export function lastLoad(sessions: WorkoutSession[], exerciseId: string, beforeDate?: string): LoadRef | null {
   const hist = exerciseHistory(sessions, exerciseId).filter((p) => beforeDate === undefined || p.date < beforeDate);
   const last = hist[hist.length - 1];
-  return last ? { kg: last.topKg, date: last.date } : null;
+  return last ? toRef(last) : null;
 }
 
-/** For a cycle week, the logged session for each day (latest one if several). */
+/**
+ * For a cycle week, the logged session for each day. A session counts only if its date falls
+ * inside the plan week [startDate, endDate] (the week label is ignored); the latest one wins.
+ */
 export function weekCompletion(sessions: WorkoutSession[], week: number): Record<DayId, WorkoutSession | null> {
   const out: Record<DayId, WorkoutSession | null> = { A: null, B: null, C: null };
+  const w = getWeek(week);
+  if (!w) return out;
   for (const s of [...sessions].sort(byDateAsc)) {
-    if (s.week === week && s.day !== null) out[s.day] = s;
+    if (s.day !== null && s.date >= w.startDate && s.date <= w.endDate) out[s.day] = s;
   }
   return out;
 }

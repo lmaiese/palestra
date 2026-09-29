@@ -18,9 +18,17 @@ describe('validateSession (F9)', () => {
   it('accepts a valid session, an off-plan one and bare loads', () => {
     expect(validateSession(session())).toEqual([]);
     expect(bad({ week: null, day: null, exercises: [] })).toEqual([]);
-    expect(badSet({ weightKg: 0, reps: null, rpe: null })).toEqual([]);
+    expect(badSet({ weightKg: 0, reps: 8, rpe: null })).toEqual([]);
     expect(badSet({ weightKg: 500, reps: 100, rpe: 10 })).toEqual([]);
     expect(badSet({ weightKg: 72.5, reps: 0, rpe: 7.5 })).toEqual([]);
+  });
+
+  it('bodyweight sets (0 kg) need reps', () => {
+    expect(badSet({ weightKg: 0, reps: null, rpe: null })).toEqual([
+      'Esercizio 1 (Back Squat), set 1: set a corpo libero (0 kg): indica le ripetizioni',
+    ]);
+    expect(badSet({ weightKg: 0, reps: 0, rpe: null })).toHaveLength(1);
+    expect(badSet({ weightKg: 0, reps: 1, rpe: 9 })).toEqual([]);
   });
 
   it('rejects bad dates', () => {

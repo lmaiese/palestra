@@ -14,7 +14,9 @@ createRoot(document.getElementById('root')!).render(
 if (import.meta.env.VITE_USE_EMULATORS === '1') {
   // Test-only sign-in hook; the whole branch is dropped from production builds.
   void import('./ui/app/testHooks').then((m) => m.install());
-} else if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+}
+
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js').catch(() => {});
   });

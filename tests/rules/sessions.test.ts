@@ -124,7 +124,7 @@ describe('S2: document shape', () => {
 
   it('accepts off-plan sessions and bare loads', async () => {
     await assertSucceeds(create(body({ week: null, day: null, exercises: [] }), '2026-09-30-extra'));
-    await assertSucceeds(create(withSet(set(0)), '2026-09-30-extra-2'));
+    await assertSucceeds(create(withSet(set(0, 8)), '2026-09-30-extra-2'));
     await assertSucceeds(create(withSet(set(500, 100, 10))));
   });
 
@@ -153,6 +153,8 @@ describe('S2: document shape', () => {
     ['reps decimal', withSet(set(70, 2.5))],
     ['rpe 11', withSet(set(70, null, 11))],
     ['rpe 0', withSet(set(70, null, 0))],
+    ['bodyweight without reps', withSet(set(0))],
+    ['bodyweight with 0 reps', withSet(set(0, 0))],
     ['set extra key', withSet({ ...set(70), x: 1 })],
     ['set missing reps', withSet({ weightKg: 70, rpe: null })],
     ['client createdAt', body({ createdAt: Timestamp.fromMillis(1) })],
@@ -187,6 +189,17 @@ describe('S2: document shape', () => {
   it('rejects malformed document ids', async () => {
     await assertFails(create(body(), 'random-id'));
     await assertFails(create(body(), '2026-09-28-w9-A'));
+  });
+
+  it('lets legacy documents without createdAt be edited', async () => {
+    await env.withSecurityRulesDisabled(async (c) => {
+      const { createdAt: _c, ...legacy } = body({ updatedAt: Timestamp.fromMillis(1) });
+      void _c;
+      await setDoc(doc(c.firestore(), 'sessions', ID), legacy);
+    });
+    const c = owner();
+    await assertSucceeds(updateDoc(sessions(c), { notes: 'x', updatedAt: serverTimestamp() }));
+    await assertFails(updateDoc(sessions(c), { createdAt: serverTimestamp(), updatedAt: serverTimestamp() }));
   });
 
   it('keeps createdAt immutable and requires a fresh updatedAt', async () => {

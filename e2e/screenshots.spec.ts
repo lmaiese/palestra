@@ -1,12 +1,12 @@
 /// <reference lib="dom" />
 // DoD UI7: screenshots of every route at 375×812 and 1280×800 into docs/screenshots/.
-// Data = the two real SPEC workouts plus three plausible week 1–2 sessions so the
+// Data = the two real SPEC workouts (src/domain/seed.ts) plus two plausible week 1–2 sessions so the
 // history and chart screens show a realistic state. "Today" is pinned to 2026-10-06.
 import { test, expect, type Page } from '@playwright/test';
-import { resetEmulators, seed, set, signIn, signInOwner, SPEC_SEED, type SeedSession } from './helpers';
+import { resetEmulators, seed, set, signIn, signInOwner, SPEC_SEED } from './helpers';
+import type { WorkoutSession } from '../src/domain/types';
 
-const DEMO: SeedSession[] = [
-  ...SPEC_SEED,
+const EXTRA: Omit<WorkoutSession, 'schemaVersion'>[] = [
   {
     id: '2026-09-29-w1-B',
     date: '2026-09-29',
@@ -15,24 +15,11 @@ const DEMO: SeedSession[] = [
     exercises: [
       { exerciseId: 'bench-press', name: 'Bench Press', sets: [set(55, 5, 7), set(50, 5), set(50, 5), set(50, 5)], notes: '' },
       { exerciseId: 'overhead-press', name: 'Overhead Press', sets: [set(35, 6, 7), set(35, 6), set(35, 6)], notes: '' },
+      { exerciseId: 'pull-up', name: 'Pull-up', sets: [set(0, 8), set(0, 7), set(0, 6)], notes: '' },
       { exerciseId: 'pendlay-row', name: 'Pendlay Row', sets: [set(50, 6), set(50, 6), set(50, 6)], notes: '' },
     ],
     conditioning: '',
     notes: '',
-  },
-  {
-    id: '2026-10-02-w1-C',
-    date: '2026-10-02',
-    week: 1,
-    day: 'C',
-    exercises: [
-      { exerciseId: 'hang-power-clean', name: 'Hang Power Clean', sets: [set(52.5, 3), set(52.5, 3), set(52.5, 3)], notes: '' },
-      { exerciseId: 'deadlift', name: 'Deadlift', sets: [set(85, 5, 7), set(77.5, 5), set(77.5, 5)], notes: '' },
-      { exerciseId: 'romanian-deadlift', name: 'Romanian Deadlift', sets: [set(60, 6), set(60, 6), set(60, 6)], notes: '' },
-      { exerciseId: 'bulgarian-split-squat', name: 'Bulgarian Split Squat', sets: [set(32.5, 6), set(32.5, 6)], notes: '' },
-    ],
-    conditioning: '5 round: 250 m row + 10 DB swing + 10 box step-up',
-    notes: 'Stacco pulito, presa hook ok.',
   },
   {
     id: '2026-10-05-w2-A',
@@ -48,6 +35,7 @@ const DEMO: SeedSession[] = [
     notes: '',
   },
 ];
+const DEMO: WorkoutSession[] = [...SPEC_SEED, ...EXTRA.map((s) => ({ ...s, schemaVersion: 1 as const }))];
 
 const TODAY = '2026-10-06';
 const SIZES = [
@@ -68,6 +56,9 @@ const ROUTES: [string, string][] = [
 
 /** Grows the viewport to the page height so fixed/sticky bars sit where a user sees them. */
 async function shot(page: Page, name: string, tag: string) {
+  // No hover or focus rings in the pictures.
+  await page.mouse.move(0, 0);
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.evaluate(() => document.fonts.ready);
   const vp = page.viewportSize()!;
   const h = await page.evaluate(() => document.documentElement.scrollHeight);
@@ -96,6 +87,16 @@ for (const size of SIZES) {
       }
       await shot(page, name, size.tag);
     }
+  });
+
+  test(`Oggi on Friday 02/10 at ${size.tag}: C still to do`, async ({ page }) => {
+    await page.setViewportSize({ width: size.w, height: size.h });
+    await signInOwner(page, '2026-10-02');
+    await expect(page.getByRole('heading', { level: 1, name: /Hinge \+ Power/ })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Registra allenamento' })).toBeVisible();
+    await expect(page.getByText('2 di 3 sedute registrate')).toBeVisible();
+    await expect(page.locator('.state-loading')).toHaveCount(0);
+    await shot(page, 'oggi-venerdi-02-10', size.tag);
   });
 
   test(`light theme at ${size.tag}`, async ({ page }) => {

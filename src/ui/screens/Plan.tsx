@@ -1,12 +1,12 @@
 // Plan browser. Reads plan data from the bundle and sessions from context only:
 // this module (and everything it imports) must never import Firebase (DoD C3).
-import { useId, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { getWeek, plan, weekForDate, defaultDayForDate } from '../../domain/plan';
 import { lastLoad } from '../../domain/stats';
 import type { DayId, PlanExercise, PlanWeek, WorkoutSession } from '../../domain/types';
 import { useSessions, useToday } from '../app/data';
 import { href } from '../lib/router';
-import { dayMonth, shortDate } from '../lib/format';
+import { dayMonth, load, shortDate } from '../lib/format';
 import { phaseForWeek, techniqueFor } from '../lib/technique';
 import { DAY_WEEKDAY } from '../lib/schedule';
 import { Plate } from '../components/Plate';
@@ -78,8 +78,13 @@ function isDay(d: string | undefined): d is DayId {
 }
 
 function WeekPicker({ selected, current, day }: { selected: number; current: number | null; day?: DayId }) {
+  const ref = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = ref.current?.querySelector<HTMLElement>('[aria-current="page"]');
+    el?.scrollIntoView?.({ block: 'nearest', inline: 'nearest' });
+  }, [selected]);
   return (
-    <nav className="weekpick" aria-label="Settimane del ciclo">
+    <nav className="weekpick" aria-label="Settimane del ciclo" ref={ref}>
       <ol>
         {plan.weeks.map((w) => (
           <li key={w.number}>
@@ -90,7 +95,7 @@ function WeekPicker({ selected, current, day }: { selected: number; current: num
               aria-label={`Settimana ${w.number}, ${w.theme}${w.number === current ? ', in corso' : ''}`}
             >
               <span className="weekpick-n">{w.number}</span>
-              <span className="weekpick-theme">{w.theme}</span>
+              <span className="weekpick-theme">{w.theme.split(/\s+\+?\s*/)[0]}</span>
             </a>
           </li>
         ))}
@@ -155,7 +160,11 @@ function SessionView({ week, day }: { week: PlanWeek; day: DayId }) {
       </div>
 
       <details className="warmup">
-        <summary>Warm-up standard, 6 minuti</summary>
+        <summary>
+          <IconChevron className="warmup-chev" width={20} height={20} />
+          <span className="warmup-title">Warm-up standard</span>
+          <span className="warmup-meta">6 minuti, {plan.warmup.length} passi</span>
+        </summary>
         <ol>
           {plan.warmup.map((w) => (
             <li key={w}>{w}</li>
@@ -214,7 +223,8 @@ function ExerciseRow({ ex, sessions, loading }: { ex: PlanExercise; sessions: Wo
               'ultima volta: carico…'
             ) : last ? (
               <>
-                ultima volta <b>{last.kg} kg</b> · {shortDate(last.date)}
+                ultima volta <b>{load(last.kg)}</b>
+                {last.bodyweight && last.reps != null ? ` × ${last.reps}` : ''} · {shortDate(last.date)}
               </>
             ) : (
               'mai registrato'

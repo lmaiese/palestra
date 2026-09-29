@@ -39,5 +39,10 @@ export function createFirebaseAuthAdapter(): AuthAdapter {
     async signOut() {
       await signOut(auth);
     },
+    async signOutAndClear() {
+      // Lazy: firebase-db pulls in Firestore, which the initial chunk must not contain.
+      const { signOutAndClear } = await import('../../firebase-db');
+      await signOutAndClear();
+    },
   };
 }

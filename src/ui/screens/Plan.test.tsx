@@ -76,6 +76,31 @@ describe('Piano', () => {
   });
 });
 
+describe('Regole', () => {
+  it('sections collapse and a jump opens the target; the technique pool filters by text and category', async () => {
+    const user = userEvent.setup();
+    renderStatic({ status: 'ready', sessions: [] }, { path: '/regole?s=fatica' });
+    expect(document.getElementById('c-lite')).toHaveAttribute('open');
+    expect(document.getElementById('fatica')).toHaveAttribute('open');
+    expect(document.getElementById('tecnica')).not.toHaveAttribute('open');
+    expect(screen.getByRole('navigation', { name: 'Sezioni delle regole' })).toBeInTheDocument();
+
+    const pool = document.getElementById('tecnica')!;
+    const all = within(pool).getAllByRole('listitem').length;
+    expect(all).toBe(39);
+    await user.click(within(pool).getByRole('radio', { name: 'Core' }));
+    expect(within(pool).getAllByRole('listitem')).toHaveLength(5);
+    await user.click(within(pool).getByRole('radio', { name: 'Tutte' }));
+    await user.type(within(pool).getByLabelText('Cerca esercizio o parola chiave'), 'scapole');
+    const hits = within(pool).getAllByRole('listitem');
+    expect(hits.length).toBeGreaterThan(0);
+    hits.forEach((h) => expect(h).toHaveTextContent(/scapole/i));
+    await user.clear(within(pool).getByLabelText('Cerca esercizio o parola chiave'));
+    await user.type(within(pool).getByLabelText('Cerca esercizio o parola chiave'), 'zzz');
+    expect(within(pool).getByText(/Nessun esercizio corrisponde/)).toBeInTheDocument();
+  });
+});
+
 // ---- C3: the plan screens' import graph never reaches Firebase ----
 
 const UI = resolve(process.cwd(), 'src/ui');

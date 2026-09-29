@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
 import { exerciseDisplayName } from '../../domain/exercises';
-import { personalBest } from '../../domain/stats';
+import { lastLoad } from '../../domain/stats';
 import { plan } from '../../domain/plan';
 import { useSessionList, useSessions } from '../app/data';
 import { href } from '../lib/router';
 import { dayOfMonth, kg, monthShort, shortDate, weekdayName } from '../lib/format';
-import { sessionRef, sessionTitle, topKg } from '../lib/summary';
+import { loadRecord, sessionRef, sessionTitle, topKg } from '../lib/summary';
 import { Plate } from '../components/Plate';
 import { StateBlock } from '../components/States';
 import { IconChevron } from '../components/Icons';
@@ -17,7 +17,7 @@ export function History() {
   const exercises = useMemo(() => {
     const ids = new Set<string>();
     list.forEach((s) => s.exercises.forEach((e) => e.sets.length && ids.add(e.exerciseId)));
-    const arr = [...ids].map((id) => ({ id, best: personalBest(list, id), anchor: plan.anchors.indexOf(id) }));
+    const arr = [...ids].map((id) => ({ id, best: loadRecord(list, id), bodyweight: !!lastLoad(list, id)?.bodyweight, anchor: plan.anchors.indexOf(id) }));
     return arr.sort((a, b) => {
       if ((a.anchor >= 0) !== (b.anchor >= 0)) return a.anchor >= 0 ? -1 : 1;
       if (a.anchor >= 0) return a.anchor - b.anchor;
@@ -82,12 +82,13 @@ export function History() {
                           {tops.slice(0, 4).map((t) => (
                             <span key={t.id} className="top">
                               {plan.anchors.includes(t.id) && <Plate exerciseId={t.id} size={12} />}
-                              {t.name} <b>{kg(t.top!)}</b>
+                              {t.name} {t.top === 0 ? <span className="muted">corpo libero</span> : <b>{kg(t.top!)}</b>}
                             </span>
                           ))}
                           {tops.length > 4 && <span className="top top-more">+{tops.length - 4}</span>}
                         </span>
                       )}
+                      {s.notes && <span className="sessrow-note">{s.notes}</span>}
                     </span>
                     <IconChevron className="sessrow-chev" />
                   </a>
@@ -115,6 +116,8 @@ export function History() {
                       <>
                         <b>{kg(e.best.kg)}</b> kg
                       </>
+                    ) : e.bodyweight ? (
+                      'corpo libero'
                     ) : (
                       '—'
                     )}

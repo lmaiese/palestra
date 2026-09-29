@@ -15,3 +15,23 @@ export function uniqueSessionId(base: string, taken: ReadonlySet<string>): strin
 
 /** Shape accepted for ids (mirrored in firestore.rules). */
 export const SESSION_ID_RE = /^\d{4}-\d{2}-\d{2}-(w[1-8]-[ABC]|extra)(-\d{1,3})?$/;
+
+/**
+ * Id a save writes to. New sessions get a fresh derived id. An existing `id` is kept while it
+ * still matches date/week/day (also with its "-N" suffix); otherwise the session moves to a
+ * fresh derived id (the caller deletes the old document).
+ */
+export function idForSave(
+  date: string,
+  week: number | null,
+  day: DayId | null,
+  id: string | undefined,
+  known: ReadonlySet<string>,
+): string {
+  const base = sessionIdFor(date, week, day);
+  if (id === undefined) return uniqueSessionId(base, known);
+  if (id === base || (id.startsWith(`${base}-`) && /^\d{1,3}$/.test(id.slice(base.length + 1)))) return id;
+  const others = new Set(known);
+  others.delete(id);
+  return uniqueSessionId(base, others);
+}

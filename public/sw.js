@@ -1,20 +1,39 @@
-// Palestra service worker: makes the app shell open offline after the first visit.
-// Same-origin GET only; Firebase traffic (other origins) is never touched —
-// Firestore has its own IndexedDB cache.
-const CACHE = 'palestra-shell-v1';
+// Palestra service worker: the app shell opens offline, even on a cold reload.
+// The build (vite.config.ts, swPrecache) injects the list of built files and a
+// version derived from it. Same-origin GET only: Firebase traffic goes to other
+// origins and is never touched (Firestore keeps its own IndexedDB cache).
+const PRECACHE = /*__PRECACHE__*/[];
+const CACHE = 'palestra-shell-' + '/*__VERSION__*/dev';
+// Module scripts carry an Origin header the precache requests did not: a
+// `Vary: Origin` response would never match without ignoreVary.
+const MATCH = { ignoreVary: true };
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE).then((c) => c.addAll(['/', '/manifest.webmanifest'])).then(() => self.skipWaiting()));
+  event.waitUntil(
+    caches
+      .open(CACHE)
+      .then((c) => c.addAll(PRECACHE))
+      .then(() => self.skipWaiting()),
+  );
 });
 
 self.addEventListener('activate', (event) => {
+  // Drop the caches of previous builds.
   event.waitUntil(
     caches
       .keys()
-      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then((keys) => Promise.all(keys.filter((k) => k.startsWith('palestra-') && k !== CACHE).map((k) => caches.delete(k))))
       .then(() => self.clients.claim()),
   );
 });
+
+function putIfOk(req, res) {
+  if (res && res.ok && res.type === 'basic') {
+    const copy = res.clone();
+    caches.open(CACHE).then((c) => c.put(req, copy));
+  }
+  return res;
+}
 
 self.addEventListener('fetch', (event) => {
   const req = event.request;
@@ -24,33 +43,15 @@ self.addEventListener('fetch', (event) => {
   if (url.pathname.startsWith('/__/')) return; // Firebase reserved URLs (auth handler)
 
   if (req.mode === 'navigate') {
-    // Network first so deploys show up; cached shell when offline.
+    // Network first so a deploy shows up at once; cached shell when offline.
     event.respondWith(
       fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/', copy));
-          return res;
-        })
-        .catch(() => caches.match('/')),
+        .then((res) => putIfOk(new Request('/'), res))
+        .catch(() => caches.match('/', MATCH).then((hit) => hit || Response.error())),
     );
     return;
   }
 
-  if (url.pathname.startsWith('/assets/') || /\.(png|svg|webmanifest|woff2)$/.test(url.pathname)) {
-    // Hashed assets are immutable: cache first.
-    event.respondWith(
-      caches.match(req).then(
-        (hit) =>
-          hit ||
-          fetch(req).then((res) => {
-            if (res.ok) {
-              const copy = res.clone();
-              caches.open(CACHE).then((c) => c.put(req, copy));
-            }
-            return res;
-          }),
-      ),
-    );
-  }
+  // Hashed assets and icons: cache first.
+  event.respondWith(caches.match(req, MATCH).then((hit) => hit || fetch(req).then((res) => putIfOk(req, res))));
 });

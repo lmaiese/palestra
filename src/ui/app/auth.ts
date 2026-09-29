@@ -12,4 +12,6 @@ export interface AuthAdapter {
   onChange(cb: (user: AuthUser | null) => void): () => void;
   signIn(): Promise<void>;
   signOut(): Promise<void>;
+  /** Owner sign-out: also wipes the local Firestore cache. */
+  signOutAndClear(): Promise<void>;
 }

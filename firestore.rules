@@ -9,7 +9,8 @@ rules_version = '2';
 // - every top-level field (keys, types, ranges, text sizes, schemaVersion, timestamps);
 // - the exercises list size (<= 30);
 // - the FIRST 2 exercises: keys, types, text sizes, sets list size (<= 20),
-//   and the values of their FIRST 2 sets (kg 0-500, reps int 0-100 or null, rpe 1-10 or null).
+//   and the values of their FIRST 2 sets (kg 0-500, reps int 0-100 or null, rpe 1-10 or null,
+//   kg 0 = bodyweight requires reps >= 1).
 // Exercises from the 3rd on, and sets from the 3rd on, are only checked client-side.
 // A maximal legal document (30 exercises x 20 sets) stays well within the budget
 // (tests/rules/sessions.test.ts). Dates are checked by regex, not as calendar dates
@@ -34,7 +35,9 @@ service cloud.firestore {
         && s.keys().hasOnly(['weightKg', 'reps', 'rpe'])
         && s.weightKg is number && s.weightKg >= 0 && s.weightKg <= 500
         && (s.reps == null || (s.reps is int && s.reps >= 0 && s.reps <= 100))
-        && (s.rpe == null || (s.rpe is number && s.rpe >= 1 && s.rpe <= 10));
+        && (s.rpe == null || (s.rpe is number && s.rpe >= 1 && s.rpe <= 10))
+        // weightKg 0 = bodyweight (corpo libero): reps are then required.
+        && (s.weightKg > 0 || (s.reps != null && s.reps >= 1));
     }
 
     function setOk(sets, i) {
@@ -84,7 +87,8 @@ service cloud.firestore {
         && request.resource.data.updatedAt == request.time;
       allow update: if isOwner()
         && validSession(request.resource.data)
-        && request.resource.data.createdAt == resource.data.get('createdAt', null)
+        // Legacy documents may lack createdAt: they stay editable, and createdAt stays absent.
+        && request.resource.data.get('createdAt', null) == resource.data.get('createdAt', null)
         && request.resource.data.updatedAt == request.time;
       allow delete: if isOwner();
     }

@@ -1,4 +1,5 @@
 // Client-side mirror of the Firestore rules. Messages are user-facing (Italian).
+// Contract: weightKg 0 means bodyweight (corpo libero) and then reps >= 1 is required.
 import { isValidIsoDate } from './dates';
 import type { WorkoutSessionInput } from './types';
 
@@ -47,6 +48,9 @@ function validateSet(set: unknown, label: string): string[] {
   }
   if (set.reps !== null && (!Number.isInteger(set.reps) || (set.reps as number) < 0 || (set.reps as number) > LIMITS.maxReps)) {
     errors.push(`${label}: le ripetizioni devono essere un intero tra 0 e ${LIMITS.maxReps} (o vuote)`);
+  }
+  if (set.weightKg === 0 && (set.reps === null || set.reps === 0)) {
+    errors.push(`${label}: set a corpo libero (0 kg): indica le ripetizioni`);
   }
   if (set.rpe !== null && (!isNum(set.rpe) || set.rpe < LIMITS.minRpe || set.rpe > LIMITS.maxRpe)) {
     errors.push(`${label}: l'RPE deve essere tra ${LIMITS.minRpe} e ${LIMITS.maxRpe} (o vuoto)`);

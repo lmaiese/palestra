@@ -53,28 +53,59 @@ describe('exerciseHistory', () => {
 
 describe('personalBest / lastLoad', () => {
   it('finds the earliest heaviest load', () => {
-    expect(personalBest(sessions, 'back-squat')).toEqual({ kg: 80, date: '2026-10-05' });
+    expect(personalBest(sessions, 'back-squat')).toEqual({ kg: 80, date: '2026-10-05', reps: null, bodyweight: false });
     expect(personalBest(sessions, 'nope')).toBeNull();
   });
   it('finds the last load, optionally before a date', () => {
-    expect(lastLoad(sessions, 'back-squat')).toEqual({ kg: 80, date: '2026-10-12' });
-    expect(lastLoad(sessions, 'back-squat', '2026-10-12')).toEqual({ kg: 80, date: '2026-10-05' });
+    expect(lastLoad(sessions, 'back-squat')).toMatchObject({ kg: 80, date: '2026-10-12' });
+    expect(lastLoad(sessions, 'back-squat', '2026-10-12')).toMatchObject({ kg: 80, date: '2026-10-05' });
     expect(lastLoad(sessions, 'back-squat', '2026-09-28')).toBeNull();
   });
   it('works on the seed (F6: "ultima volta 70 kg · 28/09")', () => {
-    expect(lastLoad(seedSessions, 'back-squat')).toEqual({ kg: 70, date: '2026-09-28' });
-    expect(lastLoad(seedSessions, 'deadlift')).toEqual({ kg: 70, date: '2026-09-25' });
+    expect(lastLoad(seedSessions, 'back-squat')).toEqual({ kg: 70, date: '2026-09-28', reps: null, bodyweight: false });
+    expect(lastLoad(seedSessions, 'deadlift')).toMatchObject({ kg: 70, date: '2026-09-25' });
   });
 });
 
 describe('weekCompletion', () => {
-  it('maps each day to the latest session of that week', () => {
+  it('maps each day to the latest session dated inside the plan week', () => {
     const extra = s('e', '2026-10-02', {}, 1, 'C');
     const res = weekCompletion([...sessions, extra, s('f', '2026-09-30', {}, null, null)], 1);
     expect(res.A?.id).toBe('a');
     expect(res.B).toBeNull();
     expect(res.C?.id).toBe('e');
-    expect(weekCompletion(seedSessions, 1)).toMatchObject({ A: { id: '2026-09-28-w1-A' }, B: null, C: { id: '2026-09-25-w1-C' } });
+  });
+  it('ignores sessions dated outside the week even if labelled with it (seed 25/09 w1-C)', () => {
+    // Today 2026-09-29 or 2026-10-02: only A (28/09) is done, 1 of 3.
+    const res = weekCompletion(seedSessions, 1);
+    expect(res).toMatchObject({ A: { id: '2026-09-28-w1-A' }, B: null, C: null });
+    expect(Object.values(res).filter(Boolean)).toHaveLength(1);
+  });
+  it('counts by date, not by label, and returns empty for unknown weeks', () => {
+    const mislabelled = s('m', '2026-10-06', {}, 1, 'B');
+    expect(weekCompletion([mislabelled], 2).B?.id).toBe('m');
+    expect(weekCompletion([mislabelled], 1).B).toBeNull();
+    expect(weekCompletion(seedSessions, 9)).toEqual({ A: null, B: null, C: null });
+  });
+});
+
+describe('bodyweight (weightKg 0)', () => {
+  const bw = (id: string, date: string, reps: (number | null)[]): WorkoutSession => ({
+    ...s(id, date, {}),
+    exercises: [{ exerciseId: 'pull-up', name: 'Pull-up', notes: '', sets: reps.map((r) => ({ weightKg: 0, reps: r, rpe: null })) }],
+  });
+  const hist = [bw('p1', '2026-09-29', [6, 8]), bw('p2', '2026-10-06', [7]), bw('p3', '2026-10-13', [8])];
+  it('reports kg 0 with the reps and the bodyweight flag', () => {
+    expect(lastLoad(hist, 'pull-up')).toEqual({ kg: 0, date: '2026-10-13', reps: 8, bodyweight: true });
+    expect(personalBest(hist, 'pull-up')).toEqual({ kg: 0, date: '2026-09-29', reps: 8, bodyweight: true });
+    expect(exerciseHistory(hist, 'pull-up')[0]).toMatchObject({ topKg: 0, topReps: 8 });
+  });
+  it('prefers load over reps once weight is added', () => {
+    const weighted: WorkoutSession = {
+      ...s('p4', '2026-10-20', {}),
+      exercises: [{ exerciseId: 'pull-up', name: 'Pull-up', notes: '', sets: [{ weightKg: 5, reps: 3, rpe: null }] }],
+    };
+    expect(personalBest([...hist, weighted], 'pull-up')).toEqual({ kg: 5, date: '2026-10-20', reps: 3, bodyweight: false });
   });
 });
 

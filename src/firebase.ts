@@ -11,7 +11,8 @@ export const USE_EMULATORS = import.meta.env.VITE_USE_EMULATORS === '1';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCtuV2ZAUyj8Qlhz3KtR_NqpIFlauTlvqQ',
-  authDomain: 'palestra-luigi.firebaseapp.com',
+  // Same site as the app, so the sign-in redirect/popup is first-party (Hosting serves /__/auth/*).
+  authDomain: 'palestra-luigi.web.app',
   projectId: USE_EMULATORS ? 'demo-palestra' : 'palestra-luigi',
   storageBucket: 'palestra-luigi.firebasestorage.app',
   messagingSenderId: '740747247742',

@@ -11,6 +11,7 @@ const fs = vi.hoisted(() => {
     error: null as null | ((e: Error) => void),
     writes: [] as { id: string; data: Record<string, unknown>; opts?: unknown }[],
     deletes: [] as string[],
+    batches: [] as string[][],
     failWrites: false,
   };
   return {
@@ -34,6 +35,22 @@ const fs = vi.hoisted(() => {
     }),
     deleteDoc: vi.fn(async (ref: { id: string }) => {
       state.deletes.push(ref.id);
+    }),
+    writeBatch: vi.fn(() => {
+      const ops: string[] = [];
+      return {
+        set: (ref: { id: string }, data: Record<string, unknown>) => {
+          ops.push(`set:${ref.id}`);
+          state.writes.push({ id: ref.id, data });
+        },
+        delete: (ref: { id: string }) => {
+          ops.push(`delete:${ref.id}`);
+          state.deletes.push(ref.id);
+        },
+        commit: async () => {
+          state.batches.push(ops);
+        },
+      };
     }),
   };
 });
@@ -116,6 +133,20 @@ describe('createMemoryRepo', () => {
     expect(onData.mock.calls.at(-1)?.[0]).toHaveLength(1);
   });
 
+  it('moves a session to a new id when date/week/day change on edit', async () => {
+    const repo = createMemoryRepo(seedSessions);
+    const onData = vi.fn();
+    repo.subscribe(onData, vi.fn());
+    const { id: oldId, schemaVersion: _v, ...edit } = seedSessions[1];
+    void _v;
+    const newId = await repo.save({ ...edit, date: '2026-09-29', day: 'B' }, oldId);
+    expect(newId).toBe('2026-09-29-w1-B');
+    await tick();
+    const ids = (onData.mock.calls.at(-1)?.[0] as WorkoutSession[]).map((s) => s.id);
+    expect(ids).toEqual(['2026-09-29-w1-B', '2026-09-25-w1-C']);
+    expect(await repo.save({ ...edit, date: '2026-09-29', day: 'B', notes: 'x' }, newId)).toBe(newId);
+  });
+
   it('rejects invalid input with Italian messages', async () => {
     const repo = createMemoryRepo();
     await expect(repo.save(input({ date: 'ieri' }))).rejects.toBeInstanceOf(ValidationError);
@@ -134,7 +165,7 @@ describe('createMemoryRepo', () => {
 describe('createFirestoreRepo', () => {
   const db = {} as never;
   beforeEach(() => {
-    Object.assign(fs.state, { onSnapshotCalls: 0, unsubscribed: 0, next: null, error: null, writes: [], deletes: [], failWrites: false });
+    Object.assign(fs.state, { onSnapshotCalls: 0, unsubscribed: 0, next: null, error: null, writes: [], deletes: [], batches: [], failWrites: false });
   });
   afterEach(() => {
     vi.unstubAllGlobals();
@@ -209,6 +240,18 @@ describe('createFirestoreRepo', () => {
     expect(upd.data.updatedAt).toBe('SERVER_TS');
   });
 
+  it('moves an edited session to its new id with one atomic batch', async () => {
+    const repo = createFirestoreRepo(db);
+    repo.subscribe(vi.fn(), vi.fn());
+    fs.state.next?.(snap(seedSessions));
+    const { id: oldId, schemaVersion: _v, ...edit } = seedSessions[1];
+    void _v;
+    const newId = await repo.save({ ...edit, date: '2026-09-29', day: 'B' }, oldId);
+    expect(newId).toBe('2026-09-29-w1-B');
+    expect(fs.state.batches).toEqual([['set:2026-09-29-w1-B', 'delete:2026-09-28-w1-A']]);
+    expect(fs.state.writes[0].data).toMatchObject({ date: '2026-09-29', day: 'B', createdAt: 'SERVER_TS' });
+  });
+
   it('validates before writing', async () => {
     const repo = createFirestoreRepo(db);
     await expect(repo.save(input({ exercises: 'x' as never }))).rejects.toBeInstanceOf(ValidationError);
@@ -221,6 +264,35 @@ describe('createFirestoreRepo', () => {
     await expect(repo.save(input())).rejects.toThrow('permission-denied');
     await repo.remove('abc');
     expect(fs.state.deletes).toEqual(['abc']);
+  });
+
+  it('resolves after the ack timeout when the server is slow, reporting late failures', async () => {
+    const repo = createFirestoreRepo(db, { ackTimeoutMs: 20 });
+    const onError = vi.fn();
+    repo.subscribe(vi.fn(), onError);
+    let fail: (e: Error) => void = () => {};
+    fs.setDoc.mockImplementationOnce(() => new Promise<void>((_res, rej) => { fail = rej; }));
+    await expect(repo.save(input())).resolves.toBe('2026-09-29-w1-B');
+    fail(new Error('permission-denied'));
+    await tick();
+    expect(onError).toHaveBeenCalledWith(expect.objectContaining({ message: 'permission-denied' }));
+  });
+
+  it('uses a 3 s default ack timeout', async () => {
+    vi.useFakeTimers();
+    try {
+      const repo = createFirestoreRepo(db);
+      fs.setDoc.mockImplementationOnce(() => new Promise<void>(() => {}));
+      let done = false;
+      const p = repo.save(input()).then(() => { done = true; });
+      await vi.advanceTimersByTimeAsync(2999);
+      expect(done).toBe(false);
+      await vi.advanceTimersByTimeAsync(1);
+      await p;
+      expect(done).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 
   it('resolves immediately when offline and routes late failures to onError', async () => {

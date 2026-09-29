@@ -8,30 +8,11 @@ const MONTHS_SHORT = ['gen', 'feb', 'mar', 'apr', 'mag', 'giu', 'lug', 'ago', 's
 const WEEKDAYS = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
 const WEEKDAYS_SHORT = ['D', 'L', 'M', 'M', 'G', 'V', 'S'];
 
-export function toISO(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
-}
-
-export function todayISO(): string {
-  return toISO(new Date());
-}
+export { addDays, daysBetween, todayIso as todayISO } from '../../domain/dates';
 
 export function parseISO(iso: string): Date {
   const [y, m, d] = iso.split('-').map(Number);
   return new Date(y, m - 1, d, 12);
-}
-
-export function addDays(iso: string, n: number): string {
-  const d = parseISO(iso);
-  d.setDate(d.getDate() + n);
-  return toISO(d);
-}
-
-export function daysBetween(fromIso: string, toIso: string): number {
-  return Math.round((parseISO(toIso).getTime() - parseISO(fromIso).getTime()) / 86_400_000);
 }
 
 /** "28/09" */
@@ -68,9 +49,17 @@ export function weekdayLetter(iso: string): string {
   return WEEKDAYS_SHORT[parseISO(iso).getDay()];
 }
 
-/** 72.5 → "72,5"; 70 → "70" */
+/** 72.5 → "72,5"; 70 → "70". Decimal comma everywhere. */
 export function kg(n: number): string {
-  return Number.isInteger(n) ? String(n) : n.toLocaleString('it-IT', { maximumFractionDigits: 2 });
+  return Number.isInteger(n) ? String(n) : String(Math.round(n * 100) / 100).replace('.', ',');
+}
+
+/** weightKg 0 means bodyweight. */
+export const BODYWEIGHT = 'corpo libero';
+
+/** 70 → "70 kg"; 0 → "corpo libero". */
+export function load(n: number): string {
+  return n === 0 ? BODYWEIGHT : `${kg(n)} kg`;
 }
 
 /** "72,5" | "72.5" → 72.5; "" → null; garbage → NaN */

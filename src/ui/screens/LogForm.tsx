@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { defaultDayForDate, getSession, plan, weekForDate } from '../../domain/plan';
 import { canonicalExerciseId, exerciseDisplayName } from '../../domain/exercises';
 import { lastLoad, sessionFromPlan } from '../../domain/stats';
@@ -7,7 +7,10 @@ import type { DayId, WorkoutSession, WorkoutSessionInput } from '../../domain/ty
 import { useSessions, useToday } from '../app/data';
 import { useToast } from '../app/toast';
 import { href, navigate, setNavigationBlocker, useQuery } from '../lib/router';
-import { capitalize, kg, longDate, parseDecimal, shortDate } from '../lib/format';
+import { capitalize, kg, load, longDate, parseDecimal, shortDate } from '../lib/format';
+import { italianError } from '../lib/errors';
+import { setsInPrescription } from '../lib/prescription';
+import { draftKey, readJson, removeKey, writeJson } from '../lib/storage';
 import { Plate } from '../components/Plate';
 import { StateBlock } from '../components/States';
 import { IconBack, IconX } from '../components/Icons';
@@ -35,6 +38,10 @@ interface Draft {
   conditioning: string;
   notes: string;
 }
+interface StoredDraft {
+  draft: Draft;
+  autoRef: boolean;
+}
 
 let seq = 0;
 const nextKey = () => ++seq;
@@ -47,13 +54,17 @@ function numStr(n: number | null): string {
 
 function exercisesFromPlan(week: number | null, day: DayId | null, date: string): ExDraft[] {
   if (week == null || day == null) return [];
-  return sessionFromPlan(week, day, date).exercises.map((e) => ({
-    key: nextKey(),
-    exerciseId: e.exerciseId,
-    name: e.name,
-    notes: e.notes,
-    sets: [emptySet()],
-  }));
+  const planned = getSession(week, day);
+  return sessionFromPlan(week, day, date).exercises.map((e) => {
+    const rx = planned?.exercises.find((p) => p.exerciseId === e.exerciseId)?.prescription ?? '';
+    return {
+      key: nextKey(),
+      exerciseId: e.exerciseId,
+      name: e.name,
+      notes: e.notes,
+      sets: Array.from({ length: setsInPrescription(rx) }, () => emptySet()),
+    };
+  });
 }
 
 function draftFromSession(s: WorkoutSession): Draft {
@@ -68,7 +79,13 @@ function draftFromSession(s: WorkoutSession): Draft {
       exerciseId: e.exerciseId,
       name: e.name,
       notes: e.notes,
-      sets: e.sets.map((st) => ({ key: nextKey(), kg: numStr(st.weightKg), reps: numStr(st.reps), rpe: numStr(st.rpe) })),
+      sets: e.sets.map((st) => ({
+        key: nextKey(),
+        // Bodyweight sets are stored as 0 kg and edited as an empty kg field.
+        kg: st.weightKg === 0 && st.reps != null ? '' : numStr(st.weightKg),
+        reps: numStr(st.reps),
+        rpe: numStr(st.rpe),
+      })),
     })),
   };
 }
@@ -89,7 +106,7 @@ function hasData(d: Draft): boolean {
 
 type FieldErrors = Record<number, { kg?: string; reps?: string; rpe?: string }>;
 
-/** Draft → input. Blank set rows and exercises without sets are dropped. */
+/** Draft → input. Blank set rows and exercises without sets are dropped; empty kg + reps = bodyweight. */
 function toInput(d: Draft): { input: WorkoutSessionInput; fieldErrors: FieldErrors } {
   const fieldErrors: FieldErrors = {};
   const exercises = d.exercises
@@ -101,12 +118,13 @@ function toInput(d: Draft): { input: WorkoutSessionInput; fieldErrors: FieldErro
           const r = parseDecimal(s.reps);
           const p = parseDecimal(s.rpe);
           const errs: FieldErrors[number] = {};
-          if (w === null) errs.kg = 'Inserisci i kg';
-          else if (Number.isNaN(w) || w < 0 || w > 500) errs.kg = 'Kg tra 0 e 500';
-          if (r !== null && (Number.isNaN(r) || !Number.isInteger(r) || r < 0 || r > 100)) errs.reps = 'Reps intere 0–100';
-          if (p !== null && (Number.isNaN(p) || p < 1 || p > 10)) errs.rpe = 'RPE 1–10';
+          if (w === null && r === null) errs.kg = 'Inserisci i kg, o le ripetizioni se è a corpo libero';
+          else if (w !== null && (Number.isNaN(w) || w < 0 || w > 500)) errs.kg = 'Kg tra 0 e 500';
+          if (r !== null && (Number.isNaN(r) || !Number.isInteger(r) || r < 0 || r > 100)) errs.reps = 'Ripetizioni intere 0–100';
+          else if (w === 0 && r === 0) errs.reps = 'A corpo libero servono almeno 1 ripetizione';
+          if (p !== null && (Number.isNaN(p) || p < 1 || p > 10)) errs.rpe = 'RPE tra 1 e 10';
           if (errs.kg || errs.reps || errs.rpe) fieldErrors[s.key] = errs;
-          return { weightKg: w ?? Number.NaN, reps: r, rpe: p };
+          return { weightKg: w ?? 0, reps: r, rpe: p };
         });
       return { exerciseId: e.exerciseId, name: e.name.trim(), notes: e.notes.trim(), sets };
     })
@@ -124,6 +142,21 @@ function toInput(d: Draft): { input: WorkoutSessionInput; fieldErrors: FieldErro
   };
 }
 
+function stripKeys(d: Draft) {
+  return {
+    ...d,
+    exercises: d.exercises.map((e) => ({ ...e, key: 0, sets: e.sets.map((s) => ({ ...s, key: 0 })) })),
+  };
+}
+
+/** Restored keys must not collide with new ones. */
+function adoptKeys(d: Draft) {
+  for (const e of d.exercises) {
+    seq = Math.max(seq, e.key);
+    for (const s of e.sets) seq = Math.max(seq, s.key);
+  }
+}
+
 // ---------- screen ----------
 
 export function LogForm({ editId }: { editId?: string }) {
@@ -132,8 +165,14 @@ export function LogForm({ editId }: { editId?: string }) {
   const query = useQuery();
 
   if (editId) {
-    if (state.status === 'loading') return <FormFrame title="Modifica seduta"><StateBlock kind="loading" title="Carico la seduta" /></FormFrame>;
     const existing = state.sessions.find((s) => s.id === editId);
+    if (!existing && state.status === 'loading') {
+      return (
+        <FormFrame title="Modifica seduta">
+          <StateBlock kind="loading" title="Carico la seduta" />
+        </FormFrame>
+      );
+    }
     if (!existing) {
       return (
         <FormFrame title="Modifica seduta">
@@ -146,24 +185,24 @@ export function LogForm({ editId }: { editId?: string }) {
         </FormFrame>
       );
     }
-    return <FormBody key={editId} editId={editId} initial={draftFromSession(existing)} autoRef={false} />;
+    return <FormBody key={editId} editId={editId} fresh={draftFromSession(existing)} autoRef={false} />;
   }
 
   const qw = Number(query.get('w'));
   const qd = query.get('d');
   const fromQuery = qw >= 1 && qw <= 8 && (qd === 'A' || qd === 'B' || qd === 'C');
   const ref = fromQuery ? { week: qw, day: qd as DayId } : refForDate(today);
-  const initial: Draft = {
+  const fresh: Draft = {
     date: today,
     ...ref,
     exercises: exercisesFromPlan(ref.week, ref.day, today),
     conditioning: '',
     notes: '',
   };
-  return <FormBody key={`new-${ref.week}-${ref.day}`} initial={initial} autoRef={!fromQuery} />;
+  return <FormBody key={`new-${ref.week}-${ref.day}`} fresh={fresh} autoRef={!fromQuery} />;
 }
 
-function FormFrame({ title, children }: { title: string; children: React.ReactNode }) {
+function FormFrame({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="page page-log">
       <header className="page-head">
@@ -174,21 +213,32 @@ function FormFrame({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; editId?: string; autoRef: boolean }) {
+function FormBody({ fresh, editId, autoRef: autoRefInit }: { fresh: Draft; editId?: string; autoRef: boolean }) {
   const { state, save } = useSessions();
+  const today = useToday();
   const toast = useToast();
-  const [draft, setDraft] = useState<Draft>(initial);
-  const [autoRef, setAutoRef] = useState(autoRefInit);
+  const storageKey = draftKey(editId);
+  const [restored] = useState<StoredDraft | null>(() => {
+    const s = readJson<StoredDraft>(storageKey);
+    if (!s || !s.draft || !Array.isArray(s.draft.exercises)) return null;
+    adoptKeys(s.draft);
+    return s;
+  });
+  const [draft, setDraft] = useState<Draft>(() => restored?.draft ?? fresh);
+  const [autoRef, setAutoRef] = useState(restored?.autoRef ?? autoRefInit);
+  const [showRestored, setShowRestored] = useState(!!restored);
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [errors, setErrors] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [extraName, setExtraName] = useState('');
-  const [initialJson] = useState(() => JSON.stringify(stripKeys(initial)));
+  const [freshJson] = useState(() => JSON.stringify(stripKeys(fresh)));
   const errorRef = useRef<HTMLDivElement>(null);
+  const saved = useRef(false);
   const uid = useId();
 
-  const dirty = JSON.stringify(stripKeys(draft)) !== initialJson;
+  const dirty = JSON.stringify(stripKeys(draft)) !== freshJson;
 
+  // Unsaved-changes guard.
   useEffect(() => {
     if (!dirty) {
       setNavigationBlocker(null);
@@ -205,8 +255,26 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
     };
   }, [dirty]);
 
+  // Draft persistence (debounced). A reload or a phone lock does not lose the sets.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (saved.current) return;
+      if (dirty) writeJson(storageKey, { draft, autoRef } satisfies StoredDraft);
+      else removeKey(storageKey);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [draft, autoRef, dirty, storageKey]);
+
   const planSession = draft.week != null && draft.day != null ? getSession(draft.week, draft.day) : undefined;
   const planConditioning = planSession?.exercises.find((e) => e.block === 'Conditioning');
+
+  const duplicate = useMemo(
+    () =>
+      draft.day == null
+        ? undefined
+        : state.sessions.find((s) => s.id !== editId && s.date === draft.date && s.day === draft.day),
+    [state.sessions, draft.date, draft.day, editId],
+  );
 
   const update = (fn: (d: Draft) => Draft) => setDraft((d) => fn(d));
 
@@ -230,6 +298,24 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
   const setExercise = (key: number, fn: (e: ExDraft) => ExDraft) =>
     update((d) => ({ ...d, exercises: d.exercises.map((e) => (e.key === key ? fn(e) : e)) }));
 
+  const removeExercise = (ex: ExDraft) => {
+    let index = -1;
+    update((d) => {
+      index = d.exercises.findIndex((e) => e.key === ex.key);
+      return { ...d, exercises: d.exercises.filter((e) => e.key !== ex.key) };
+    });
+    toast(`${ex.name} rimosso`, {
+      label: 'Annulla',
+      onClick: () =>
+        update((d) => {
+          if (d.exercises.some((e) => e.key === ex.key)) return d;
+          const list = [...d.exercises];
+          list.splice(index < 0 ? list.length : Math.min(index, list.length), 0, ex);
+          return { ...d, exercises: list };
+        }),
+    });
+  };
+
   const addExtra = () => {
     const name = extraName.trim();
     if (!name) return;
@@ -237,6 +323,15 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
     if (!exerciseId) return;
     update((d) => ({ ...d, exercises: [...d.exercises, { key: nextKey(), exerciseId, name, notes: '', sets: [emptySet()] }] }));
     setExtraName('');
+  };
+
+  const discardDraft = () => {
+    removeKey(storageKey);
+    setDraft(fresh);
+    setAutoRef(autoRefInit);
+    setShowRestored(false);
+    setErrors([]);
+    setFieldErrors({});
   };
 
   const counts = useMemo(() => {
@@ -248,8 +343,7 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
     e.preventDefault();
     const { input, fieldErrors: fe } = toInput(draft);
     setFieldErrors(fe);
-    const local = Object.keys(fe).length ? ['Correggi i campi segnati in rosso.'] : [];
-    const errs = local.length ? local : validateSession(input);
+    const errs = Object.keys(fe).length ? ['Correggi i campi segnati in rosso.'] : validateSession(input);
     if (input.exercises.length === 0 && !input.conditioning && errs.length === 0) {
       errs.push('Inserisci almeno un carico, oppure il conditioning.');
     }
@@ -261,12 +355,18 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
     setSaving(true);
     try {
       const id = await save(input, editId);
+      saved.current = true;
+      removeKey(storageKey);
       setNavigationBlocker(null);
       toast(editId ? 'Modifiche salvate' : 'Seduta salvata');
       navigate(`/storico/${id}`, { force: true });
     } catch (err) {
       const list = (err as { errors?: unknown }).errors;
-      setErrors(Array.isArray(list) && list.length ? (list as string[]) : [`Salvataggio non riuscito: ${(err as Error).message}`]);
+      setErrors(
+        Array.isArray(list) && list.length
+          ? (list as string[])
+          : [`Salvataggio non riuscito. ${italianError(err)}`],
+      );
       requestAnimationFrame(() => errorRef.current?.focus());
     } finally {
       setSaving(false);
@@ -275,7 +375,11 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
 
   const knownNames = useMemo(() => {
     const set = new Set<string>();
-    plan.weeks.forEach((w) => w.sessions.forEach((s) => s.exercises.forEach((e) => e.block !== 'Conditioning' && set.add(exerciseDisplayName(e.exerciseId)))));
+    plan.weeks.forEach((w) =>
+      w.sessions.forEach((s) =>
+        s.exercises.forEach((e) => e.block !== 'Conditioning' && set.add(exerciseDisplayName(e.exerciseId))),
+      ),
+    );
     return [...set].sort();
   }, []);
 
@@ -291,6 +395,17 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
         <h1 className="page-title">{editId ? 'Modifica seduta' : 'Registra'}</h1>
         <p className="page-sub">{capitalize(longDate(draft.date))}</p>
       </header>
+
+      {showRestored && (
+        <div className="notice" role="status">
+          <p>
+            <b>Bozza ripristinata.</b> Hai lasciato questa seduta a metà: i dati sono ancora qui.
+          </p>
+          <button type="button" className="btn btn-quiet btn-sm" onClick={discardDraft}>
+            Scarta bozza
+          </button>
+        </div>
+      )}
 
       <form className="logform" onSubmit={onSubmit} noValidate aria-describedby={errors.length ? `${uid}-errors` : undefined}>
         <fieldset className="refbox">
@@ -358,6 +473,16 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
               ? `${draft.day}, ${planSession.title}${autoRef ? ': dedotta dalla data' : ''}`
               : 'Allenamento fuori piano: aggiungi gli esercizi a mano.'}
           </p>
+          {duplicate && (
+            <div className="dupwarn" role="note">
+              <p>
+                Hai già registrato {duplicate.day} {duplicate.date === today ? 'oggi' : `il ${shortDate(duplicate.date)}`}.
+              </p>
+              <a className="link" href={href(`/registra/${duplicate.id}`)}>
+                Modifica quella seduta
+              </a>
+            </div>
+          )}
         </fieldset>
 
         {draft.exercises.length === 0 && (
@@ -374,7 +499,7 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
               prescription={planSession?.exercises.find((p) => p.exerciseId === ex.exerciseId)}
               fieldErrors={fieldErrors}
               onChange={(fn) => setExercise(ex.key, fn)}
-              onRemove={() => update((d) => ({ ...d, exercises: d.exercises.filter((e) => e.key !== ex.key) }))}
+              onRemove={() => removeExercise(ex)}
             />
           ))}
         </ol>
@@ -444,25 +569,19 @@ function FormBody({ initial, editId, autoRef: autoRefInit }: { initial: Draft; e
           )}
           <div className="savebar-row">
             <p className="savebar-count" aria-live="polite">
-              <b>{counts.ex}</b> esercizi · <b>{counts.sets}</b> set
+              <b>{counts.ex}</b> esercizi, <b>{counts.sets}</b> set
             </p>
             <button type="submit" className="btn btn-primary btn-xl savebar-btn" disabled={saving}>
               {saving ? 'Salvo…' : editId ? 'Salva modifiche' : 'Salva seduta'}
             </button>
           </div>
-          <p className="savebar-hint">Gli esercizi senza kg non vengono salvati.</p>
         </div>
+        <p className="form-hint">
+          Le righe vuote non vengono salvate. Kg vuoto con le ripetizioni = corpo libero.
+        </p>
       </form>
     </div>
   );
-}
-
-
-function stripKeys(d: Draft) {
-  return {
-    ...d,
-    exercises: d.exercises.map((e) => ({ ...e, key: 0, sets: e.sets.map((s) => ({ ...s, key: 0 })) })),
-  };
 }
 
 interface EditorProps {
@@ -479,50 +598,65 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
   const last = lastLoad(sessions, ex.exerciseId, date);
   const anchor = plan.anchors.includes(ex.exerciseId);
   const headId = useId();
+  const emptyIndex = ex.sets.findIndex((s) => !s.kg.trim());
 
   const setField = (key: number, field: 'kg' | 'reps' | 'rpe', value: string) =>
     onChange((e) => ({ ...e, sets: e.sets.map((s) => (s.key === key ? { ...s, [field]: value } : s)) }));
 
+  const useLast = () => {
+    if (!last) return;
+    onChange((e) => {
+      const i = e.sets.findIndex((s) => !s.kg.trim());
+      if (i < 0) return { ...e, sets: [...e.sets, emptySet(kg(last.kg))] };
+      return { ...e, sets: e.sets.map((s, j) => (j === i ? { ...s, kg: kg(last.kg) } : s)) };
+    });
+  };
+
   return (
     <li className={`logex${anchor ? ' logex-anchor' : ''}`} aria-labelledby={headId}>
       <div className="logex-head">
-        <div className="logex-title">
-          <h2 id={headId} className="logex-name">
-            {anchor && <Plate exerciseId={ex.exerciseId} size={20} />}
-            {ex.name}
-          </h2>
-          <p className="logex-meta">
-            {prescription?.prescription && <span className="logex-rx">{prescription.prescription}</span>}
-            {prescription?.rest && <span>rec. {prescription.rest}</span>}
-            {!prescription && <span>extra</span>}
-          </p>
-          <p className="logex-last">
-            {last ? (
-              <>
-                ultima volta <b>{kg(last.kg)} kg</b> · {shortDate(last.date)}
-              </>
-            ) : (
-              'prima volta'
-            )}
-          </p>
-        </div>
-        <button type="button" className="icon-btn" onClick={onRemove} aria-label={`Rimuovi ${ex.name}`}>
-          <IconX />
+        <h2 id={headId} className="logex-name">
+          {anchor && <Plate exerciseId={ex.exerciseId} size={18} />}
+          {ex.name}
+        </h2>
+        <button type="button" className="btn-text" onClick={onRemove} aria-label={`Rimuovi ${ex.name}`}>
+          Rimuovi
         </button>
       </div>
+      <p className="logex-meta">
+        {prescription?.prescription ? <span className="logex-rx">{prescription.prescription}</span> : <span>extra</span>}
+        {prescription?.rest && <span>rec. {prescription.rest}</span>}
+        {!last && <span>prima volta</span>}
+      </p>
+      {last && (
+      <div className="logex-last">
+        {(
+          <>
+            <span>
+              ultima volta <b>{load(last.kg)}</b>
+              {last.bodyweight && last.reps != null ? ` × ${last.reps}` : ''} · {shortDate(last.date)}
+            </span>
+            {last.kg > 0 && emptyIndex >= 0 && (
+              <button
+                type="button"
+                className="chip-fill"
+                onClick={useLast}
+                aria-label={`Usa ${kg(last.kg)} kg nel set ${emptyIndex + 1} di ${ex.name}`}
+              >
+                = {kg(last.kg)} kg
+              </button>
+            )}
+          </>
+        )}
+      </div>
+      )}
 
       <div className="sets" role="group" aria-label={`Set di ${ex.name}`}>
-        <div className="sets-head" aria-hidden="true">
-          <span>#</span>
-          <span>kg</span>
-          <span>reps</span>
-          <span>RPE</span>
-          <span />
-        </div>
         {ex.sets.map((s, i) => {
           const fe = fieldErrors[s.key] ?? {};
           const n = i + 1;
           const errId = `${headId}-e${s.key}`;
+          const hasErr = !!(fe.kg || fe.reps || fe.rpe);
           return (
             <div key={s.key} className="setrow">
               <span className="setrow-n" aria-hidden="true">
@@ -535,9 +669,9 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
                 autoComplete="off"
                 aria-label={`${ex.name}, set ${n}, kg`}
                 aria-invalid={fe.kg ? true : undefined}
-                aria-describedby={fe.kg || fe.reps || fe.rpe ? errId : undefined}
+                aria-describedby={hasErr ? errId : undefined}
                 value={s.kg}
-                placeholder={i === 0 && last ? kg(last.kg) : ''}
+                placeholder="kg"
                 onChange={(e) => setField(s.key, 'kg', e.target.value)}
               />
               <input
@@ -547,6 +681,7 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
                 aria-label={`${ex.name}, set ${n}, ripetizioni`}
                 aria-invalid={fe.reps ? true : undefined}
                 value={s.reps}
+                placeholder="rep"
                 onChange={(e) => setField(s.key, 'reps', e.target.value)}
               />
               <input
@@ -556,6 +691,7 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
                 aria-label={`${ex.name}, set ${n}, RPE`}
                 aria-invalid={fe.rpe ? true : undefined}
                 value={s.rpe}
+                placeholder="rpe"
                 onChange={(e) => setField(s.key, 'rpe', e.target.value)}
               />
               <button
@@ -566,9 +702,9 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
               >
                 <IconX width={18} height={18} />
               </button>
-              {(fe.kg || fe.reps || fe.rpe) && (
+              {hasErr && (
                 <p id={errId} className="setrow-err">
-                  {[fe.kg, fe.reps, fe.rpe].filter(Boolean).join(' · ')}
+                  {[fe.kg, fe.reps, fe.rpe].filter(Boolean).join('. ')}
                 </p>
               )}
             </div>
@@ -577,11 +713,11 @@ function ExerciseEditor({ ex, date, sessions, prescription, fieldErrors, onChang
       </div>
       <button
         type="button"
-        className="btn btn-quiet btn-block addset"
+        className="btn-text addset"
         onClick={() => onChange((e) => ({ ...e, sets: [...e.sets, emptySet(e.sets[e.sets.length - 1]?.kg ?? '')] }))}
         disabled={ex.sets.length >= 20}
       >
-        Aggiungi set
+        + Aggiungi set
       </button>
     </li>
   );
