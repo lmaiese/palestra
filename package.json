@@ -14,13 +14,14 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-palestra 'vitest run --config vitest.rules.config.ts'",
-    "e2e": "firebase emulators:exec --only auth,firestore --project demo-palestra 'playwright test'",
+    "test:rules": "scripts/emu.sh --only firestore 'vitest run --config vitest.rules.config.ts'",
+    "e2e": "scripts/emu.sh --only auth,firestore 'playwright test'",
     "size": "tsx scripts/size.ts",
     "seed": "tsx scripts/seed.ts",
     "verify": "npm run typecheck && npm run lint && npm test && npm run test:rules && npm run build && npm run size && npm run e2e"
   },
   "dependencies": {
+    "@fontsource-variable/archivo": "^5.3.0",
     "firebase": "^12.19.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"

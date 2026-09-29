@@ -1,0 +1,1787 @@
+{
+  "title": "Piano 8 Settimane v2 — Bilanciere-First",
+  "startDate": "2026-09-28",
+  "endDate": "2026-11-22",
+  "anchors": [
+    "back-squat",
+    "bench-press",
+    "deadlift",
+    "overhead-press",
+    "pull-up"
+  ],
+  "weekTemplate": [
+    {
+      "day": "Lunedì",
+      "activity": "A — Lower Power (squat)"
+    },
+    {
+      "day": "Martedì",
+      "activity": "B — Upper + Pull (panca, OHP)"
+    },
+    {
+      "day": "Mercoledì",
+      "activity": "Beach"
+    },
+    {
+      "day": "Giovedì",
+      "activity": "Beach"
+    },
+    {
+      "day": "Venerdì",
+      "activity": "C — Hinge + Power (stacco, clean)"
+    },
+    {
+      "day": "Sabato",
+      "activity": "Riposo, o 3° beach se organizzi partita"
+    },
+    {
+      "day": "Domenica",
+      "activity": "Riposo"
+    }
+  ],
+  "progression": [
+    {
+      "weeks": "1-2",
+      "phase": "Base",
+      "topSet": "1x5 @RPE 7-7.5",
+      "backOff": "3-4x5 @-10%"
+    },
+    {
+      "weeks": "3",
+      "phase": "Tempo",
+      "topSet": "1x5 @RPE 8",
+      "backOff": "3x5 @-10%"
+    },
+    {
+      "weeks": "4",
+      "phase": "Test",
+      "topSet": "3RM",
+      "backOff": "2x3 @-20%"
+    },
+    {
+      "weeks": "5",
+      "phase": "Intensificazione",
+      "topSet": "1x3 @80%",
+      "backOff": "3x4 @-10%"
+    },
+    {
+      "weeks": "6",
+      "phase": "Intensità",
+      "topSet": "1x3 @87%",
+      "backOff": "2x3 @-10%"
+    },
+    {
+      "weeks": "7",
+      "phase": "Qualità",
+      "topSet": "1x3 @85%",
+      "backOff": "2x3 @-10%"
+    },
+    {
+      "weeks": "8",
+      "phase": "Deload",
+      "topSet": "3x5 @60-65%",
+      "backOff": ""
+    }
+  ],
+  "progressionRules": [
+    "RPE ≤ target → +2.5kg upper, +5kg lower la settimana dopo",
+    "RPE sopra target → carico fermo, non scendere",
+    "Tecnica crolla → riduci del 5% e lavora sul punto debole",
+    "Mai cedimento. Mai RIR 0."
+  ],
+  "rules": [
+    {
+      "title": "Parametri",
+      "text": "- Periodo: Lun 28 set → Dom 22 nov 2026\n- Obiettivo: Forza + potenza per beach volley\n- Frequenza pesi: 3x/settimana\n- Frequenza beach: 2x fissa (Mer + Gio) + 3° giorno variabile\n- Durata seduta: ~60 min\n- Attrezzatura: Bilanciere, rack, panca, manubri, sbarra, vogatore, pedana, box 60cm\n- Assente: KB, trap-bar, assault bike, wall ball, anelli"
+    },
+    {
+      "title": "Come funziona questo piano",
+      "text": "5 anchor fissi restano identici per 8 settimane, così la progressione è misurabile: Back Squat, Bench Press, Deadlift, Overhead Press, Pull-up.\nTutto il resto ruota: variante dello stesso pattern, accessori, tirate, prehab, conditioning. Nessuna settimana ripete la combinazione della precedente. Ogni settimana ha un tema con un nome."
+    },
+    {
+      "title": "Perché questo ordine",
+      "text": "Lo squat sta a 48h dal beach, lo stacco a 24h dopo con due giorni di recupero davanti. La seduta B non ha lavoro assiale pesante, così il martedì non intacca il beach di mercoledì."
+    },
+    {
+      "title": "C-Lite",
+      "text": "Se sabato giochi, la seduta C del venerdì diventa C-Lite: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e conditioning in zona 2. Non salti la seduta, la svuoti delle cose che ti costano in sabbia."
+    },
+    {
+      "title": "Beach > Pesi",
+      "text": "Il beach vince sempre. Se la sabbia ti ha distrutto: taglia i set sugli accessori, tieni gli anchor anche a -10% di carico, elimina il conditioning. Se sei cotto per due sedute di fila, salti C per prima — è la più sacrificabile."
+    },
+    {
+      "title": "Progressione anchor",
+      "text": "Top set + back-off. Il top set trova il carico, i back-off accumulano volume al -10% con tecnica pulita."
+    },
+    {
+      "title": "Segnali che stai esagerando",
+      "text": "- L'RPE sale senza che il carico salga\n- L'altezza del salto cala di sessione in sessione\n- Sonno o umore compromessi\n- La motivazione è a zero per più di due sessioni\nAzione: mini-deload di 3-4 giorni (volume -50%, carichi -20%) oppure salti una seduta C. Non tirare dritto."
+    },
+    {
+      "title": "Ordine di taglio quando sei cotto",
+      "text": "1. Conditioning (si elimina per primo, sempre)\n2. Accessori e unilaterali (-1 set)\n3. Prehab (resta solo face pull)\n4. Back-off degli anchor (-1 set)\n5. Mai il top set degli anchor, mai i salti"
+    },
+    {
+      "title": "Acqua, sonno, sabbia",
+      "text": "Il piano non funziona se dormi 5 ore. Se il beach è intenso, il volume in palestra scende, non sale."
+    },
+    {
+      "title": "Log e tracking",
+      "text": "Da segnare a ogni sessione: carico, rep, RPE reale, note su tecnica o dolore.\n- Carico + rep su ogni anchor: È l'unico modo per sapere se stai progredendo\n- RPE reale vs target: Decide se la settimana dopo sali di carico\n- Altezza CMJ (sett 1, 4, 8): Misura secca della potenza\n- Sensazioni in sabbia: È l'obiettivo vero, il resto è mezzo"
+    }
+  ],
+  "warmup": [
+    "1' cyclette o camminata",
+    "Mobilità caviglia: wall drill 10/lato",
+    "Affondo dinamico + rotazione toracica 5/lato",
+    "Squat corpo libero 10 fluide",
+    "Band pull-apart 15 (solo seduta B)",
+    "2-3 serie di avvicinamento al primo esercizio pesante"
+  ],
+  "weeks": [
+    {
+      "number": 1,
+      "theme": "Fondamenta",
+      "startDate": "2026-09-28",
+      "endDate": "2026-10-04",
+      "objective": "trovare i carichi di riferimento sui 5 anchor. Nessun cedimento, RPE 7 massimo.",
+      "novelty": "tutto nuovo. Segna ogni carico e ogni RPE reale: sono la base del ciclo.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x3",
+              "rest": "90-120\"",
+              "notes": "Max intenzione, stop se l'altezza cala"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7 + 3x5 @-10%",
+              "rest": "2-3'",
+              "notes": "Parallelo o sotto"
+            },
+            {
+              "exerciseId": "tempo-squat",
+              "name": "Tempo Squat 3-1-1",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @-20%",
+              "rest": "2'",
+              "notes": "3\" discesa, 1\" in buca"
+            },
+            {
+              "exerciseId": "hip-thrust",
+              "name": "Hip Thrust bilanciere",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x8",
+              "rest": "90\"",
+              "notes": "Squeeze 1\" in alto"
+            },
+            {
+              "exerciseId": "pallof-press",
+              "name": "Pallof Press",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10/lato",
+              "rest": "45\"",
+              "notes": "Resisti la rotazione"
+            },
+            {
+              "exerciseId": "4-rounds-250m-row-10-goblet-squat",
+              "name": "4 rounds: 250m row + 10 goblet squat",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "60\" tra round",
+              "notes": "~10 min"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7 + 3x5 @-10%",
+              "rest": "2-3'",
+              "notes": "Scapole addotte"
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x6 @RPE 7",
+              "rest": "2'",
+              "notes": "Strict, no lean back"
+            },
+            {
+              "exerciseId": "pause-bench",
+              "name": "Pause Bench 1\"",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @-15%",
+              "rest": "2'",
+              "notes": "Fermo al petto"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5-8",
+              "rest": "90\"",
+              "notes": "Strict, RIR 2"
+            },
+            {
+              "exerciseId": "pendlay-row",
+              "name": "Pendlay Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x6",
+              "rest": "90\"",
+              "notes": "Ogni rep da terra"
+            },
+            {
+              "exerciseId": "face-pull",
+              "name": "Face Pull",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "3x15",
+              "rest": "45\"",
+              "notes": "Extrarotazione finale"
+            },
+            {
+              "exerciseId": "dead-bug",
+              "name": "Dead Bug",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x8/lato",
+              "rest": "45\"",
+              "notes": "Lombare incollata"
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "hang-power-clean",
+              "name": "Hang Power Clean",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "5x3 @60%",
+              "rest": "90\"",
+              "notes": "USA le anche, no muscle clean"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7 + 2x5 @-10%",
+              "rest": "3'",
+              "notes": "Convenzionale, presa mista o hook"
+            },
+            {
+              "exerciseId": "romanian-deadlift",
+              "name": "Romanian Deadlift",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x6",
+              "rest": "2'",
+              "notes": "Discesa 3\", senti femorali"
+            },
+            {
+              "exerciseId": "bulgarian-split-squat",
+              "name": "Bulgarian Split Squat bilanciere",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x6/gamba",
+              "rest": "90\"",
+              "notes": "90% del peso sulla gamba avanti"
+            },
+            {
+              "exerciseId": "5-rounds-250m-row-10-db-swing-10-box-step-up",
+              "name": "5 rounds: 250m row + 10 DB swing + 10 box step-up",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "60\" tra round",
+              "notes": "~13 min"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 2,
+      "theme": "Volume",
+      "startDate": "2026-10-05",
+      "endDate": "2026-10-11",
+      "objective": "+1 set sui back-off. RPE 7-7.5. Accumuli volume di qualità prima della fase di carico.",
+      "novelty": "approach jump, front squat, floor press, clean @65%, ladder al posto dei round fissi.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "approach-jump",
+              "name": "Approach Jump",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x2",
+              "rest": "90-120\"",
+              "notes": "Rincorsa 2-4 passi, stacco da attacco"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7.5 + 4x5 @-10%",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "front-squat",
+              "name": "Front Squat",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @RPE 7",
+              "rest": "2'",
+              "notes": "Gomiti alti, busto verticale"
+            },
+            {
+              "exerciseId": "bulgarian-split-squat",
+              "name": "Bulgarian Split Squat bilanciere",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x6/gamba",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "side-plank",
+              "name": "Side Plank",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x30\"/lato",
+              "rest": "45\"",
+              "notes": "Anca alta"
+            },
+            {
+              "exerciseId": "5x-200m-row-90",
+              "name": "5x 200m row @90%",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "45\" rest",
+              "notes": "~10 min"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7.5 + 4x5 @-10%",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x6 @RPE 7.5",
+              "rest": "2'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "floor-press",
+              "name": "Floor Press bilanciere",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @RPE 7",
+              "rest": "2'",
+              "notes": "Gomiti a 45°, stop a terra"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x6-8",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "bent-over-row",
+              "name": "Bent Over Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x6",
+              "rest": "90\"",
+              "notes": "Busto 45°, tira all'ombelico"
+            },
+            {
+              "exerciseId": "ext-rotation-band-pull-apart",
+              "name": "Ext Rotation + Band Pull-apart",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "3x12 + 3x20",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "dead-bug",
+              "name": "Dead Bug",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10/lato",
+              "rest": "45\"",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "hang-power-clean",
+              "name": "Hang Power Clean",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "5x3 @65%",
+              "rest": "90\"",
+              "notes": "Stesso schema, carico su"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 7.5 + 3x5 @-10%",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "deficit-deadlift",
+              "name": "Deficit Deadlift (5cm)",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @-15%",
+              "rest": "2-3'",
+              "notes": "5cm di rialzo, più ROM"
+            },
+            {
+              "exerciseId": "step-up",
+              "name": "Step-up box 60cm",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x8/gamba",
+              "rest": "90\"",
+              "notes": "Spingi con la gamba sopra"
+            },
+            {
+              "exerciseId": "ladder-2-4-6-8-10-db-swing-push-up-box-step-up",
+              "name": "Ladder 2-4-6-8-10: DB swing, push up, box step-up",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "60\" tra gradini",
+              "notes": "~13 min"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 3,
+      "theme": "Tempo",
+      "startDate": "2026-10-12",
+      "endDate": "2026-10-18",
+      "objective": "controllo eccentrico, TUT alto, carichi moderati. Costruisci qualità di movimento.",
+      "novelty": "pause squat, box jump, close-grip bench, sega con fermo, EMOM.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "box-jump",
+              "name": "Box Jump (step down)",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x3",
+              "rest": "90-120\"",
+              "notes": "Scendi dal box, non saltare giù"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 8 + 3x5 @-10%",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "pause-squat",
+              "name": "Pause Squat (2\" in buca)",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x4 @-15%",
+              "rest": "2'",
+              "notes": "Fermo vero, non molleggio"
+            },
+            {
+              "exerciseId": "hip-thrust",
+              "name": "Hip Thrust bilanciere",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x8",
+              "rest": "90\"",
+              "notes": "Carico su rispetto a sett 1"
+            },
+            {
+              "exerciseId": "pallof-press",
+              "name": "Pallof Press",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x12/lato",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "emom-8-12-cal-row-8-push-up",
+              "name": "EMOM 8': 12 cal row + 8 push up",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "",
+              "notes": "Recuperi nel minuto restante"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 8 + 3x5 @-10%",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @RPE 8",
+              "rest": "2'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "close-grip-bench",
+              "name": "Close-grip Bench",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x6 @-10%",
+              "rest": "2'",
+              "notes": "Presa a 30cm, gomiti vicini"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x6-8",
+              "rest": "90\"",
+              "notes": "Zavorra se fai 8 facili"
+            },
+            {
+              "exerciseId": "pendlay-row",
+              "name": "Pendlay Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x5",
+              "rest": "2'",
+              "notes": "Pesante, rep esplosive da terra"
+            },
+            {
+              "exerciseId": "face-pull-ytw",
+              "name": "Face Pull + YTW",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "3x15 + 2x8",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "hanging-knee-raise",
+              "name": "Hanging Knee Raise",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10",
+              "rest": "45\"",
+              "notes": "No dondolio"
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "clean-pull",
+              "name": "Clean Pull",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "5x3 @70%",
+              "rest": "90\"",
+              "notes": "No catch: solo tirata, meno rischio"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x5 @RPE 8 + 3x5 @-10%",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "paused-romanian-deadlift",
+              "name": "RDL con fermo sotto ginocchia",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x6 @-15%",
+              "rest": "2'",
+              "notes": "2\" di fermo, schiena neutra"
+            },
+            {
+              "exerciseId": "walking-lunge",
+              "name": "Affondo camminata bilanciere",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x10 passi",
+              "rest": "90\"",
+              "notes": "Passo controllato"
+            },
+            {
+              "exerciseId": "1000m-row-80-2-rest-500m-90",
+              "name": "1000m row @80% + 2' rest + 500m @90%",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "",
+              "notes": "~12 min"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 4,
+      "theme": "Test",
+      "startDate": "2026-10-19",
+      "endDate": "2026-10-25",
+      "objective": "test 3RM sui tre big lift. Volume accessori tagliato: è settimana da misurare, non da costruire.",
+      "novelty": "i carichi delle settimane 5-7 escono da qui. Segna tutto.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x3",
+              "rest": "90-120\"",
+              "notes": "Misura l'altezza: è il baseline"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat TEST 3RM",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3 singole progressive → 1x3 max",
+              "rest": "3-4'",
+              "notes": "Con pin di sicurezza. RIR 0-1 ammesso solo qui"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Back-off",
+              "isAnchor": false,
+              "prescription": "2x3 @-20%",
+              "rest": "2-3'",
+              "notes": "Scarico, tecnica"
+            },
+            {
+              "exerciseId": "bulgarian-split-squat",
+              "name": "Bulgarian Split Squat",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "2x8/gamba leggero",
+              "rest": "90\"",
+              "notes": "Basso volume"
+            },
+            {
+              "exerciseId": "side-plank",
+              "name": "Side Plank",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "2x30\"/lato",
+              "rest": "45\"",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press TEST 3RM",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3 singole progressive → 1x3 max",
+              "rest": "3'",
+              "notes": "Con fermo di sicurezza o spotter"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up TEST max strict",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1 serie a esaurimento pulito",
+              "rest": "2'",
+              "notes": "Conta le rep, stop quando la forma cede"
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @RPE 7",
+              "rest": "2'",
+              "notes": "Nessun test: progredisce a RPE"
+            },
+            {
+              "exerciseId": "face-pull",
+              "name": "Face Pull",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "2x15",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "dead-bug",
+              "name": "Dead Bug",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "2x10/lato",
+              "rest": "45\"",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift TEST 3RM",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3 singole progressive → 1x3 max",
+              "rest": "3-4'",
+              "notes": "Presa hook sulle singole pesanti"
+            },
+            {
+              "exerciseId": "romanian-deadlift",
+              "name": "RDL",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "2x6 leggero",
+              "rest": "2'",
+              "notes": "Scarico"
+            },
+            {
+              "exerciseId": "bulgarian-split-squat",
+              "name": "Bulgarian Split Squat",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "2x8/gamba leggero",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "3-rounds-300m-row-8-burpee",
+              "name": "3 rounds: 300m row + 8 burpee",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "90\" tra round",
+              "notes": "Leggero, non è giornata da battaglia"
+            }
+          ]
+        }
+      ],
+      "extra": [
+        "Se un test va male per stanchezza accumulata, registra il numero e riprovalo in settimana 7. Non è un problema, è un dato."
+      ]
+    },
+    {
+      "number": 5,
+      "theme": "Intensificazione",
+      "startDate": "2026-10-26",
+      "endDate": "2026-11-01",
+      "objective": "rep basse, carichi dall'80% dei test di settimana 4. Volume in calo, intensità su.",
+      "novelty": "box squat, deficit DL, row EMOM alternato. Recuperi più lunghi.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x3",
+              "rest": "90-120\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @80% + 3x4 @-10%",
+              "rest": "3'",
+              "notes": "% dal 3RM di sett 4"
+            },
+            {
+              "exerciseId": "box-squat",
+              "name": "Box Squat",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x4 @-15%",
+              "rest": "2-3'",
+              "notes": "Seduta completa sul box, poi esploso"
+            },
+            {
+              "exerciseId": "step-up",
+              "name": "Step-up box 60cm",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x6/gamba",
+              "rest": "90\"",
+              "notes": "Carico, spingi forte"
+            },
+            {
+              "exerciseId": "pallof-press",
+              "name": "Pallof Press",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x12/lato",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "5x-250m-row-90",
+              "name": "5x 250m row @90%",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "60\" rest",
+              "notes": "~11 min"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @80% + 3x4 @-10%",
+              "rest": "3'",
+              "notes": "% dal 3RM di sett 4"
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x4 @RPE 8",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "pause-bench",
+              "name": "Pause Bench 2\"",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x3 @-15%",
+              "rest": "2-3'",
+              "notes": "Fermo lungo, carico basso"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5",
+              "rest": "2'",
+              "notes": "Zavorrato se il test di sett 4 era >10"
+            },
+            {
+              "exerciseId": "bent-over-row",
+              "name": "Bent Over Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x5",
+              "rest": "2-3'",
+              "notes": "Pesante"
+            },
+            {
+              "exerciseId": "face-pull",
+              "name": "Face Pull",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "4x15",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "barbell-roll-out",
+              "name": "Barbell Roll-out",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x8",
+              "rest": "60\"",
+              "notes": "Se non hai la ruota, usa il bilanciere"
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "hang-power-clean-high-pull",
+              "name": "Hang Power Clean + High Pull",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "5x3 @65%",
+              "rest": "90\"",
+              "notes": "Doppia estensione, poi alta tirata"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @80% + 3x4 @-10%",
+              "rest": "3-4'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "deficit-deadlift",
+              "name": "Deficit Deadlift (5cm)",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x4 @-20%",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "walking-lunge",
+              "name": "Affondo camminata manubri",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x12 passi",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "emom-15-alternato-dispari-15-cal-row-pari-8-db-swing",
+              "name": "EMOM 15' alternato: dispari 15 cal row, pari 8 DB swing",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "",
+              "notes": "~15 min"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 6,
+      "theme": "Intensità",
+      "startDate": "2026-11-02",
+      "endDate": "2026-11-08",
+      "objective": "picco di carico. 87%, volume minimo. Qualità sopra tutto.",
+      "novelty": "tempo squat pesante, push press, snatch-grip RDL. Recuperi al massimo.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "4x3",
+              "rest": "90-120\"",
+              "notes": "Se l'altezza cala di netto, chiudi"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @87% + 2x3 @-10%",
+              "rest": "3-4'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "tempo-squat",
+              "name": "Tempo Squat 4-2-1",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "4x4 @-25%",
+              "rest": "2-3'",
+              "notes": "Controllo puro, TUT alto"
+            },
+            {
+              "exerciseId": "hip-thrust",
+              "name": "Hip Thrust bilanciere",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x6",
+              "rest": "2'",
+              "notes": "Pesante"
+            },
+            {
+              "exerciseId": "hanging-knee-raise",
+              "name": "Hanging Knee Raise",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10",
+              "rest": "60\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "emom-10-14-cal-row-6-burpee",
+              "name": "EMOM 10': 14 cal row + 6 burpee",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "",
+              "notes": "~10 min"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @87% + 2x3 @-10%",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x3 @RPE 8-9",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "push-press",
+              "name": "Push Press",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @RPE 7-8",
+              "rest": "2-3'",
+              "notes": "Controllato, niente max effort"
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5",
+              "rest": "2'",
+              "notes": "Zavorrato"
+            },
+            {
+              "exerciseId": "chest-supported-db-row",
+              "name": "Chest-supported DB Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x10",
+              "rest": "90\"",
+              "notes": "Petto appoggiato, tira in alto"
+            },
+            {
+              "exerciseId": "band-pull-apart-ext-rotation",
+              "name": "Band Pull-apart + Ext Rotation",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "3x25 + 3x15",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "dead-bug",
+              "name": "Dead Bug",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10/lato",
+              "rest": "45\"",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "clean-pull",
+              "name": "Clean Pull",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "6x3 @75%",
+              "rest": "2'",
+              "notes": "Carico più alto del ciclo"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @87% + 2x3 @-10%",
+              "rest": "4'",
+              "notes": "Recuperi pieni, non negoziare"
+            },
+            {
+              "exerciseId": "snatch-grip-rdl",
+              "name": "Snatch-grip RDL",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x6 @-30%",
+              "rest": "2-3'",
+              "notes": "Presa larga, più tensione dorsale"
+            },
+            {
+              "exerciseId": "walking-lunge",
+              "name": "Affondo camminata manubri",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x12 passi",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "3-rounds-for-quality-500m-row-12-goblet-squat-10-step-up",
+              "name": "3 rounds for quality: 500m row + 12 goblet squat + 10 step-up",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "90\" tra round",
+              "notes": "Qualità, non tempo"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 7,
+      "theme": "Qualità",
+      "startDate": "2026-11-09",
+      "endDate": "2026-11-15",
+      "objective": "consolidare. Volume basso, carico alto, sensazione di controllo. Qui riprovi ciò che in settimana 4 è andato storto.",
+      "novelty": "front squat come variante, inverted row, RDL. Riprova dei carichi.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "3x2",
+              "rest": "2'",
+              "notes": "Qualità pura, recuperi completi"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @85% + 2x3 @-10%",
+              "rest": "3-4'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "front-squat",
+              "name": "Front Squat",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x3 @RPE 8",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "bulgarian-split-squat",
+              "name": "Bulgarian Split Squat bilanciere",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "3x5/gamba",
+              "rest": "2'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "dead-bug",
+              "name": "Dead Bug",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x10/lato",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "4-rounds-200m-row-10-db-swing",
+              "name": "4 rounds: 200m row + 10 DB swing",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "60\" tra round",
+              "notes": "~9 min"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @85% + 2x3 @-10%",
+              "rest": "3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "overhead-press",
+              "name": "Overhead Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @RPE 8",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "floor-press",
+              "name": "Floor Press bilanciere",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5 @RPE 8",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x6",
+              "rest": "2'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "inverted-row",
+              "name": "Inverted Row",
+              "block": "Tirata",
+              "isAnchor": false,
+              "prescription": "3x8",
+              "rest": "90\"",
+              "notes": "Corpo rigido, petto alla sbarra"
+            },
+            {
+              "exerciseId": "face-pull-ytw",
+              "name": "Face Pull + YTW",
+              "block": "Prehab",
+              "isAnchor": false,
+              "prescription": "3x15 + 2x10",
+              "rest": "45\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "pallof-press",
+              "name": "Pallof Press",
+              "block": "Core",
+              "isAnchor": false,
+              "prescription": "3x12/lato",
+              "rest": "45\"",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "hang-power-clean",
+              "name": "Hang Power Clean",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "4x2 @70%",
+              "rest": "2'",
+              "notes": "Massima qualità tecnica del ciclo"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "1x3 @85% + 2x3 @-10%",
+              "rest": "3-4'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "romanian-deadlift",
+              "name": "Romanian Deadlift",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "3x5",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "step-up",
+              "name": "Step-up box 60cm",
+              "block": "Unilaterale",
+              "isAnchor": false,
+              "prescription": "3x6/gamba",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "5x-300m-row",
+              "name": "5x 300m row",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "1' rest",
+              "notes": "~11 min"
+            }
+          ]
+        }
+      ],
+      "extra": []
+    },
+    {
+      "number": 8,
+      "theme": "Deload + Verifica",
+      "startDate": "2026-11-16",
+      "endDate": "2026-11-22",
+      "objective": "-40% di volume, RPE 6, nessuna ambizione. Serve a incassare le 7 settimane precedenti e a misurare.",
+      "novelty": "niente di nuovo, ed è il punto.",
+      "sessions": [
+        {
+          "day": "A",
+          "title": "Lower Power",
+          "exercises": [
+            {
+              "exerciseId": "cmj",
+              "name": "CMJ",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "2x3",
+              "rest": "2'",
+              "notes": "Solo per sentire come salti"
+            },
+            {
+              "exerciseId": "back-squat",
+              "name": "Back Squat",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @60-65%",
+              "rest": "2'",
+              "notes": "Veloce, esplosivo"
+            },
+            {
+              "exerciseId": "goblet-squat",
+              "name": "Goblet Squat DB",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "2x8",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "anca-caviglia",
+              "name": "Anca + caviglia",
+              "block": "Mobilità",
+              "isAnchor": false,
+              "prescription": "8'",
+              "rest": "",
+              "notes": "Lavoro vero, non fretta"
+            }
+          ]
+        },
+        {
+          "day": "B",
+          "title": "Upper + Pull",
+          "exercises": [
+            {
+              "exerciseId": "bench-press",
+              "name": "Bench Press",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @60-65%",
+              "rest": "2'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "db-press",
+              "name": "DB Press",
+              "block": "Variante",
+              "isAnchor": false,
+              "prescription": "2x10",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "pull-up",
+              "name": "Pull-up",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "2x6",
+              "rest": "90\"",
+              "notes": "Facili"
+            },
+            {
+              "exerciseId": "spalla-torace",
+              "name": "Spalla + torace",
+              "block": "Mobilità",
+              "isAnchor": false,
+              "prescription": "8'",
+              "rest": "",
+              "notes": ""
+            }
+          ]
+        },
+        {
+          "day": "C",
+          "title": "Hinge + Power",
+          "exercises": [
+            {
+              "exerciseId": "hang-power-clean",
+              "name": "Hang Power Clean",
+              "block": "Potenza",
+              "isAnchor": false,
+              "prescription": "4x3 @55%",
+              "rest": "90\"",
+              "notes": "Solo tecnica"
+            },
+            {
+              "exerciseId": "deadlift",
+              "name": "Deadlift",
+              "block": "Anchor",
+              "isAnchor": true,
+              "prescription": "3x5 @60%",
+              "rest": "2-3'",
+              "notes": ""
+            },
+            {
+              "exerciseId": "good-morning",
+              "name": "Good Morning",
+              "block": "Accessorio",
+              "isAnchor": false,
+              "prescription": "2x8 leggero",
+              "rest": "90\"",
+              "notes": ""
+            },
+            {
+              "exerciseId": "10-row-zona-2",
+              "name": "10' row zona 2",
+              "block": "Conditioning",
+              "isAnchor": false,
+              "prescription": "",
+              "rest": "",
+              "notes": "Respirando dal naso"
+            }
+          ]
+        }
+      ],
+      "extra": [
+        "Verifica di fine ciclo",
+        "1. Confronta l'altezza del CMJ con il baseline di settimana 4",
+        "2. Confronta i 3RM di settimana 4 con come si sentono ora i carichi @85%",
+        "3. Come ti senti in sabbia: salto, reattività, cambi di direzione",
+        "4. Cosa ha funzionato e cosa no: da qui si scrive il ciclo successivo"
+      ]
+    }
+  ],
+  "techniques": [
+    {
+      "category": "Potenza",
+      "name": "CMJ",
+      "cue": "Contro-movimento rapido, estensione massima, atterraggio morbido. Conta l'altezza, non la fatica"
+    },
+    {
+      "category": "Potenza",
+      "name": "Approach Jump",
+      "cue": "2-4 passi di rincorsa, stacco deciso come su un attacco"
+    },
+    {
+      "category": "Potenza",
+      "name": "Box Jump",
+      "cue": "Atterra sul box in squat, scendi camminando. Mai saltare giù"
+    },
+    {
+      "category": "Potenza",
+      "name": "Hang Power Clean",
+      "cue": "Hip hinge → esplosione delle anche → catch in quarter squat. Il bilanciere resta vicino"
+    },
+    {
+      "category": "Potenza",
+      "name": "Clean Pull",
+      "cue": "Stessa spinta del clean senza il catch. Utile quando la tecnica di catch non è affidabile"
+    },
+    {
+      "category": "Potenza",
+      "name": "High Pull",
+      "cue": "Doppia estensione, poi tirata alta con i gomiti"
+    },
+    {
+      "category": "Lower",
+      "name": "Back Squat",
+      "cue": "Parallelo o sotto, ginocchia che seguono i piedi, core tight"
+    },
+    {
+      "category": "Lower",
+      "name": "Front Squat",
+      "cue": "Gomiti alti, busto verticale, bilanciere sulle clavicole"
+    },
+    {
+      "category": "Lower",
+      "name": "Tempo Squat",
+      "cue": "Conta i secondi: discesa, fermo, salita. Non barare sul ritmo"
+    },
+    {
+      "category": "Lower",
+      "name": "Pause Squat",
+      "cue": "2\" di fermo vero in buca, senza molleggiare"
+    },
+    {
+      "category": "Lower",
+      "name": "Box Squat",
+      "cue": "Seduta completa sul box, poi esplosione. Insegna a partire dal basso"
+    },
+    {
+      "category": "Lower",
+      "name": "RDL",
+      "cue": "Hip hinge, ginocchia semi-flesse, senti i femorali, schiena neutra"
+    },
+    {
+      "category": "Lower",
+      "name": "Stacco con deficit",
+      "cue": "5cm di rialzo, più ROM. Carico più basso, non negoziare"
+    },
+    {
+      "category": "Lower",
+      "name": "Hip Thrust",
+      "cue": "Scapole sul bordo, spingi con i talloni, squeeze 1\" in alto"
+    },
+    {
+      "category": "Lower",
+      "name": "Bulgarian Split Squat",
+      "cue": "90% del peso sulla gamba avanti, ginocchio tracking"
+    },
+    {
+      "category": "Lower",
+      "name": "Step-up",
+      "cue": "Spingi con la gamba sopra, non slanciarti. Controlla la discesa"
+    },
+    {
+      "category": "Lower",
+      "name": "Affondo camminata",
+      "cue": "Passo medio, ginocchio non oltre le punte in modo aggressivo"
+    },
+    {
+      "category": "Upper",
+      "name": "Bench Press",
+      "cue": "Scapole addotte, arco toracico, tocca il petto controllato"
+    },
+    {
+      "category": "Upper",
+      "name": "Pause Bench",
+      "cue": "Fermo al petto, niente rimbalzo"
+    },
+    {
+      "category": "Upper",
+      "name": "Close-grip Bench",
+      "cue": "Presa ~30cm, gomiti vicini al corpo"
+    },
+    {
+      "category": "Upper",
+      "name": "Floor Press",
+      "cue": "Da terra, gomiti a 45°, stop a terra. Toglie il leg drive"
+    },
+    {
+      "category": "Upper",
+      "name": "Overhead Press",
+      "cue": "Core tight, no lean back eccessivo, lockout completo"
+    },
+    {
+      "category": "Upper",
+      "name": "Push Press",
+      "cue": "Piccolo dip delle gambe, spinta, lockout. Controllato"
+    },
+    {
+      "category": "Upper",
+      "name": "Pendlay Row",
+      "cue": "Ogni rep riparte da terra, tirata esplosiva all'ombelico"
+    },
+    {
+      "category": "Upper",
+      "name": "Bent Over Row",
+      "cue": "Busto a 45°, tira verso l'ombelico, squeeze scapole"
+    },
+    {
+      "category": "Upper",
+      "name": "Inverted Row",
+      "cue": "Corpo rigido come una tavola, petto alla sbarra"
+    },
+    {
+      "category": "Upper",
+      "name": "Pull-up",
+      "cue": "Dead hang, petto alla sbarra, negativa controllata"
+    },
+    {
+      "category": "Upper",
+      "name": "Face Pull",
+      "cue": "Tira verso la faccia, extrarotazione finale, squeeze"
+    },
+    {
+      "category": "Upper",
+      "name": "YTW",
+      "cue": "Braccia a Y, poi T, poi W. Lento, senza carico"
+    },
+    {
+      "category": "Core",
+      "name": "Pallof Press",
+      "cue": "Cavo laterale, mani davanti allo sterno, resisti la rotazione"
+    },
+    {
+      "category": "Core",
+      "name": "Dead Bug",
+      "cue": "Lombare incollata a terra, braccio e gamba opposti lenti"
+    },
+    {
+      "category": "Core",
+      "name": "Side Plank",
+      "cue": "Anca alta, corpo in linea, non afflosciarti"
+    },
+    {
+      "category": "Core",
+      "name": "Hanging Knee Raise",
+      "cue": "No dondolio: controlla la discesa"
+    },
+    {
+      "category": "Core",
+      "name": "Barbell Roll-out",
+      "cue": "Parti in ginocchio, rotola avanti quanto controlli, non oltre"
+    },
+    {
+      "category": "Conditioning",
+      "name": "Row (cal o metri)",
+      "cue": "Spinta di gambe → schiena → braccia. Ritorno invertito"
+    },
+    {
+      "category": "Conditioning",
+      "name": "DB Swing",
+      "cue": "Hip hinge come l'RDL, esplosione di anche, braccia passive"
+    },
+    {
+      "category": "Conditioning",
+      "name": "Goblet Squat",
+      "cue": "Manubrio al petto, gomiti dentro le ginocchia in buca"
+    },
+    {
+      "category": "Conditioning",
+      "name": "Step-up box",
+      "cue": "Vedi sopra"
+    },
+    {
+      "category": "Conditioning",
+      "name": "Burpee",
+      "cue": "Pettorina a terra, salto in alto. Ritmo sostenibile, non gara"
+    }
+  ]
+}
