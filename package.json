@@ -5,9 +5,20 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:emu": "VITE_USE_EMULATORS=1 vite",
     "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --noEmit",
     "lint": "oxlint",
-    "preview": "vite preview"
+    "plan": "tsx scripts/parse-plan.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-palestra 'vitest run --config vitest.rules.config.ts'",
+    "e2e": "firebase emulators:exec --only auth,firestore --project demo-palestra 'playwright test'",
+    "size": "tsx scripts/size.ts",
+    "seed": "tsx scripts/seed.ts",
+    "verify": "npm run typecheck && npm run lint && npm test && npm run test:rules && npm run build && npm run size && npm run e2e"
   },
   "dependencies": {
     "firebase": "^12.19.0",
