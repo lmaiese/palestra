@@ -1,13 +1,13 @@
 import { useEffect, useId, useMemo, useRef, useState, type FormEvent, type ReactNode } from 'react';
-import { defaultDayForDate, getSession, plan, weekForDate } from '../../domain/plan';
+import { getSession, plan, weekForDate } from '../../domain/plan';
 import { canonicalExerciseId, exerciseDisplayName } from '../../domain/exercises';
-import { lastLoad, sessionFromPlan } from '../../domain/stats';
+import { lastLoad, sessionFromPlan, suggestedRef } from '../../domain/stats';
 import { validateSession } from '../../domain/validation';
 import type { DayId, WorkoutSession, WorkoutSessionInput } from '../../domain/types';
 import { useSessions, useToday } from '../app/data';
 import { useToast } from '../app/toast';
 import { href, navigate, setNavigationBlocker, useQuery } from '../lib/router';
-import { capitalize, kg, load, longDate, parseDecimal, shortDate } from '../lib/format';
+import { kg, load, parseDecimal, shortDate } from '../lib/format';
 import { italianError } from '../lib/errors';
 import { setsInPrescription } from '../lib/prescription';
 import { draftKey, readJson, removeKey, writeJson } from '../lib/storage';
@@ -90,11 +90,6 @@ function draftFromSession(s: WorkoutSession): Draft {
   };
 }
 
-function refForDate(date: string): { week: number | null; day: DayId | null } {
-  const week = weekForDate(date);
-  const day = defaultDayForDate(date);
-  return week != null && day != null ? { week, day } : { week: null, day: null };
-}
 
 function hasData(d: Draft): boolean {
   return (
@@ -191,7 +186,15 @@ export function LogForm({ editId }: { editId?: string }) {
   const qw = Number(query.get('w'));
   const qd = query.get('d');
   const fromQuery = qw >= 1 && qw <= 8 && (qd === 'A' || qd === 'B' || qd === 'C');
-  const ref = fromQuery ? { week: qw, day: qd as DayId } : refForDate(today);
+  // Off days (weekend included) propose the first session still missing this week: wait for the data.
+  if (!fromQuery && state.status === 'loading') {
+    return (
+      <FormFrame title="Registra">
+        <StateBlock kind="loading" title="Carico gli allenamenti" />
+      </FormFrame>
+    );
+  }
+  const ref = fromQuery ? { week: qw, day: qd as DayId } : suggestedRef(state.sessions, today);
   const fresh: Draft = {
     date: today,
     ...ref,
@@ -290,7 +293,7 @@ function FormBody({ fresh, editId, autoRef: autoRefInit }: { fresh: Draft; editI
   const onDate = (date: string) => {
     update((d) => ({ ...d, date }));
     if (autoRef && /^\d{4}-\d{2}-\d{2}$/.test(date)) {
-      const r = refForDate(date);
+      const r = suggestedRef(state.sessions, date);
       setRef(r.week, r.day, false);
     }
   };
@@ -393,13 +396,12 @@ function FormBody({ fresh, editId, autoRef: autoRefInit }: { fresh: Draft; editI
           </a>
         )}
         <h1 className="page-title">{editId ? 'Modifica seduta' : 'Registra'}</h1>
-        <p className="page-sub">{capitalize(longDate(draft.date))}</p>
       </header>
 
       {showRestored && (
         <div className="notice" role="status">
           <p>
-            <b>Bozza ripristinata.</b> Hai lasciato questa seduta a metà: i dati sono ancora qui.
+            <b>Bozza ripristinata</b>
           </p>
           <button type="button" className="btn btn-quiet btn-sm" onClick={discardDraft}>
             Scarta bozza
@@ -470,7 +472,7 @@ function FormBody({ fresh, editId, autoRef: autoRefInit }: { fresh: Draft; editI
           </div>
           <p className="refnote">
             {planSession
-              ? `${draft.day}, ${planSession.title}${autoRef ? ': dedotta dalla data' : ''}`
+              ? `${draft.day}, ${planSession.title}`
               : 'Allenamento fuori piano: aggiungi gli esercizi a mano.'}
           </p>
           {duplicate && (
@@ -576,9 +578,6 @@ function FormBody({ fresh, editId, autoRef: autoRefInit }: { fresh: Draft; editI
             </button>
           </div>
         </div>
-        <p className="form-hint">
-          Le righe vuote non vengono salvate. Kg vuoto con le ripetizioni = corpo libero.
-        </p>
       </form>
     </div>
   );

@@ -49,22 +49,11 @@ export function Today() {
           </a>
         </div>
         <WeekStrip week={displayWeek} today={today} completion={completion} loading={state.status === 'loading'} started={!before} />
-        <div className="week-brief">
-          <p>
-            <strong>Obiettivo.</strong> {displayWeek.objective}
-          </p>
-          {displayWeek.novelty && (
-            <p>
-              <strong>Novità.</strong> {displayWeek.novelty}
-            </p>
-          )}
-        </div>
       </section>
 
       <section className="block" aria-labelledby="h-anchors">
         <div className="block-head">
           <h2 id="h-anchors">Anchor</h2>
-          <span className="muted small">ultimo carico e record</span>
         </div>
         <Anchors sessions={sessions.filter((x) => x.date <= today)} status={state.status} error={state.status === 'error' ? state.error : ''} />
       </section>
@@ -119,36 +108,49 @@ function TodayHero({
   const kind = kindForDate(today);
 
   if (kind.kind !== 'session') {
-    const next = nextSession(today, week);
+    // Off day (weekend included): the first session still missing this week can be logged today.
+    const pending = weekForDate(today) !== null ? DAY_ORDER.find((d) => completion[d] === null) : undefined;
+    const next = pending ? null : nextSession(today, week);
+    const lastDay = weekForDate(today) !== null && weekForDate(addDays(today, 1)) === null;
     return (
       <section className={`hero hero-off hero-${kind.kind}`} aria-labelledby="h-hero">
         <div className="hero-off-icon">{kind.kind === 'beach' ? <IconSand width={40} height={40} /> : <IconMoon width={40} height={40} />}</div>
         <h1 id="h-hero" className="hero-off-title">
           {kind.kind === 'beach' ? 'Beach' : 'Riposo'}
         </h1>
-        <p className="hero-off-text">
-          {kind.kind === 'beach'
-            ? 'Oggi si gioca in sabbia. Niente pesi: il beach vince sempre.'
-            : kind.maybeBeach
-              ? 'Riposo, o terzo beach se organizzi una partita.'
-              : weekForDate(addDays(today, 1)) !== null
-                ? 'Riposo completo. Domani si riparte con la seduta A.'
-                : 'Riposo completo. Ultimo giorno del ciclo: fai la verifica di fine ciclo.'}
-        </p>
-        {next && (
-          <a className="next-up" href={href(`/piano/${next.week}/${next.day}`)}>
-            <span className="next-letter" aria-hidden="true">
-              {next.day}
-            </span>
-            <span className="next-body">
-              <span className="next-when">Prossima: {next.when}</span>
-              <span className="next-title">{next.title}</span>
-            </span>
-            <IconChevron />
-          </a>
+        {lastDay && <p className="hero-off-text">Ultimo giorno del ciclo: verifica di fine ciclo.</p>}
+        {pending ? (
+          <>
+            <a className="next-up" href={href(`/piano/${week.number}/${pending}`)}>
+              <span className="next-letter" aria-hidden="true">
+                {pending}
+              </span>
+              <span className="next-body">
+                <span className="next-when">Da recuperare</span>
+                <span className="next-title">{getSession(week.number, pending)!.title}</span>
+              </span>
+              <IconChevron />
+            </a>
+            <a className="btn btn-primary btn-xl" href={href(`/registra?w=${week.number}&d=${pending}`)}>
+              Registra {pending}
+            </a>
+          </>
+        ) : (
+          next && (
+            <a className="next-up" href={href(`/piano/${next.week}/${next.day}`)}>
+              <span className="next-letter" aria-hidden="true">
+                {next.day}
+              </span>
+              <span className="next-body">
+                <span className="next-when">Prossima: {next.when}</span>
+                <span className="next-title">{next.title}</span>
+              </span>
+              <IconChevron />
+            </a>
+          )
         )}
         <a className="btn btn-quiet btn-block" href={href('/registra')}>
-          Registra un allenamento fuori piano
+          {pending ? 'Altro allenamento' : 'Registra allenamento'}
         </a>
       </section>
     );
@@ -184,10 +186,9 @@ function TodayHero({
       </ul>
       {kind.day === 'C' && !done && (
         <p className="callout">
-          <strong>Sabato giochi?</strong> Fai C-Lite: togli stacco pesante, clean e salti; tieni Overhead Press, tirata, core e
-          conditioning in zona 2.{' '}
+          Sabato giochi?{' '}
           <a className="link" href={href('/regole?s=c-lite')}>
-            Regola C-Lite
+            Fai C-Lite
           </a>
         </p>
       )}

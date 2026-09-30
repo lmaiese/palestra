@@ -1,5 +1,5 @@
 // Pure statistics over logged sessions. Must not import Firebase (cost DoD C3).
-import { getSession, getWeek } from './plan';
+import { defaultDayForDate, getSession, getWeek, weekForDate } from './plan';
 import type { DayId, LoggedSet, WorkoutSession, WorkoutSessionInput } from './types';
 
 export interface HistoryPoint {
@@ -79,6 +79,24 @@ export function weekCompletion(sessions: WorkoutSession[], week: number): Record
     if (s.day !== null && s.date >= w.startDate && s.date <= w.endDate) out[s.day] = s;
   }
   return out;
+}
+
+/** First session of the week (A→B→C) with nothing logged in the week's date range; null if all done or week unknown. */
+export function pendingDay(sessions: WorkoutSession[], week: number): DayId | null {
+  if (!getWeek(week)) return null;
+  const done = weekCompletion(sessions, week);
+  return (['A', 'B', 'C'] as const).find((d) => done[d] === null) ?? null;
+}
+
+/**
+ * Plan reference for a workout logged on `date`: the scheduled day (Mon A, Tue B, Fri C),
+ * otherwise the first session still missing that week, so off days (weekend included) log the pending one.
+ */
+export function suggestedRef(sessions: WorkoutSession[], date: string): { week: number | null; day: DayId | null } {
+  const week = weekForDate(date);
+  if (week === null) return { week: null, day: null };
+  const day = defaultDayForDate(date) ?? pendingDay(sessions, week);
+  return day === null ? { week: null, day: null } : { week, day };
 }
 
 /** New session prefilled with the planned exercises (no sets; conditioning rows skipped). */

@@ -9,7 +9,7 @@ describe('Oggi', () => {
     expect(screen.getByText('Settimana 1 di 8')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: /Upper \+ Pull/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Settimana 1\s*Fondamenta/ })).toBeInTheDocument();
-    expect(screen.getByText(/trovare i carichi di riferimento/)).toBeInTheDocument();
+    expect(screen.queryByText(/trovare i carichi di riferimento/)).not.toBeInTheDocument(); // objective lives in Piano only
     expect(screen.getByRole('link', { name: 'Registra allenamento' })).toHaveAttribute('href', '#/registra');
 
     // Completion is by date: the 25/09 C predates week 1 and does not count.
@@ -37,14 +37,29 @@ describe('Oggi', () => {
     expect(await screen.findByText('1 di 3 sedute registrate')).toBeInTheDocument();
   });
 
-  it('Saturday: rest or beach, no C-Lite; last Sunday of the cycle does not promise a new A', () => {
+  it('weekend: the session still missing this week can be logged; last Sunday of the cycle does not promise a new A', async () => {
     const a = renderApp({ today: '2026-10-03' });
-    expect(screen.getByText('Riposo, o terzo beach se organizzi una partita.')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { level: 1, name: 'Riposo' })).toBeInTheDocument();
+    expect(await screen.findByText('Da recuperare')).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Registra B' })).toHaveAttribute('href', '#/registra?w=1&d=B');
     expect(screen.queryByText(/C-Lite/)).not.toBeInTheDocument();
     a.unmount();
     renderApp({ today: '2026-11-22' });
     expect(screen.queryByText(/Domani si riparte/)).not.toBeInTheDocument();
     expect(screen.getByText(/Ultimo giorno del ciclo/)).toBeInTheDocument();
+  });
+
+  it('weekend with the whole week done: next session, plus a free log', async () => {
+    const done = (id: string, date: string, day: 'A' | 'B' | 'C') => ({
+      id, date, week: 1, day, exercises: [], conditioning: '', notes: '', schemaVersion: 1 as const,
+    });
+    renderApp({
+      today: '2026-10-03',
+      sessions: [done('a', '2026-09-28', 'A'), done('b', '2026-09-29', 'B'), done('c', '2026-10-02', 'C')],
+    });
+    expect(await screen.findByText(/Prossima: lunedì 5 ott/)).toBeInTheDocument();
+    expect(screen.queryByText('Da recuperare')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Registra allenamento' })).toHaveAttribute('href', '#/registra');
   });
 
   it('shows bodyweight as "corpo libero", never a 0 kg record', async () => {
@@ -77,10 +92,10 @@ describe('Oggi', () => {
     expect(within(foot).getByRole('button', { name: 'Esci' })).toBeInTheDocument();
   });
 
-  it('suggests beach on Wednesday and the next session', () => {
+  it('Wednesday is beach, with the missing session still loggable', async () => {
     renderApp({ today: '2026-09-30' });
     expect(screen.getByRole('heading', { level: 1, name: 'Beach' })).toBeInTheDocument();
-    expect(screen.getByText(/Prossima: venerdì 2 ott/)).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: 'Registra B' })).toBeInTheDocument();
   });
 
   it('shows a countdown before the cycle and the end-of-cycle check after it', () => {

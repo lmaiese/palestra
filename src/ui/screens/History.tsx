@@ -103,7 +103,6 @@ export function History() {
         <section className="block" aria-labelledby="h-ex">
           <div className="block-head">
             <h2 id="h-ex">Esercizi</h2>
-            <span className="muted small">record personale</span>
           </div>
           <ul className="exindex">
             {exercises.map((e) => (

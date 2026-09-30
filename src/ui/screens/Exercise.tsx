@@ -38,7 +38,6 @@ export function ExerciseScreen({ exerciseId }: { exerciseId: string }) {
           {anchor && <Plate exerciseId={exerciseId} size={30} />}
           {name}
         </h1>
-        {anchor && <p className="page-sub">Anchor del ciclo</p>}
       </header>
 
       {state.status === 'loading' && history.length === 0 && <StateBlock kind="loading" title="Carico lo storico" />}

@@ -30,10 +30,11 @@ describe('setsInPrescription', () => {
 describe('Registra', () => {
   it('defaults to today, derives week and session, prefills plan exercises with one row per prescribed set', async () => {
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     expect(screen.getByLabelText('Data')).toHaveValue('2026-10-05');
     expect(screen.getByLabelText('Settimana')).toHaveValue('2');
     expect(screen.getByRole('radio', { name: 'A' })).toHaveAttribute('aria-checked', 'true');
-    expect(screen.getByText(/A, Lower Power: dedotta dalla data/)).toBeInTheDocument();
+    expect(screen.getByText(/A, Lower Power/)).toBeInTheDocument();
 
     const squat = exerciseCard(/^Back Squat$/);
     expect(squat).toHaveTextContent('1x5 @RPE 7.5 + 4x5 @-10%');
@@ -48,6 +49,7 @@ describe('Registra', () => {
   it('the last load is a tappable chip, never a ghost value in the field', async () => {
     const user = userEvent.setup();
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     const squat = exerciseCard(/^Back Squat$/);
     const first = within(squat).getByRole('textbox', { name: 'Back Squat, set 1, kg' });
     expect(first).toHaveAttribute('placeholder', 'kg');
@@ -59,8 +61,9 @@ describe('Registra', () => {
     expect(within(squat).getByRole('textbox', { name: 'Back Squat, set 2, kg' })).toHaveValue('70');
   });
 
-  it('UI3: every input is labelled and loads use a decimal keypad', () => {
+  it('UI3: every input is labelled and loads use a decimal keypad', async () => {
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     const inputs = document.querySelectorAll('input, select, textarea');
     expect(inputs.length).toBeGreaterThan(10);
     inputs.forEach((el) => expect(el).toHaveAccessibleName());
@@ -70,11 +73,16 @@ describe('Registra', () => {
     screen.getAllByRole('textbox', { name: /RPE$/ }).forEach((el) => expect(el).toHaveAttribute('inputmode', 'decimal'));
   });
 
-  it('changing the date re-derives the session; off-plan days become Extra', async () => {
+  it('changing the date re-derives the session; off days take the missing one, outside the cycle is Extra', async () => {
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     const date = screen.getByLabelText('Data');
     await userEvent.clear(date);
     await userEvent.type(date, '2026-10-07');
+    expect(screen.getByLabelText('Settimana')).toHaveValue('2');
+    expect(screen.getByRole('radio', { name: 'A' })).toHaveAttribute('aria-checked', 'true');
+    await userEvent.clear(date);
+    await userEvent.type(date, '2026-11-28');
     expect(screen.getByLabelText('Settimana')).toHaveValue('');
     expect(screen.getByRole('radio', { name: 'Extra' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText('Nessun esercizio')).toBeInTheDocument();
@@ -87,6 +95,7 @@ describe('Registra', () => {
   it('saves kg, bodyweight sets, set copy, removal with undo, extra exercise and notes', async () => {
     const user = userEvent.setup();
     const { repo } = renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     const save = vi.spyOn(repo, 'save');
 
     await user.type(screen.getByRole('textbox', { name: 'Back Squat, set 1, kg' }), '77,5');
@@ -133,6 +142,7 @@ describe('Registra', () => {
   it('shows Italian errors inline and does not save invalid input', async () => {
     const user = userEvent.setup();
     const { repo } = renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     const save = vi.spyOn(repo, 'save');
     await user.type(screen.getByRole('textbox', { name: 'Back Squat, set 1, RPE' }), '8');
     await user.type(screen.getByRole('textbox', { name: 'Front Squat, set 1, kg' }), '900');
@@ -147,6 +157,7 @@ describe('Registra', () => {
   it('maps a Firebase failure to Italian, never the raw message', async () => {
     const user = userEvent.setup();
     const { repo } = renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     vi.spyOn(repo, 'save').mockRejectedValue(Object.assign(new Error('FirebaseError: [code=permission-denied] trace…'), { code: 'permission-denied' }));
     await user.type(screen.getByRole('textbox', { name: 'Back Squat, set 1, kg' }), '80');
     await user.click(screen.getByRole('button', { name: 'Salva seduta' }));
@@ -157,12 +168,22 @@ describe('Registra', () => {
 
   it('requires at least one load or the conditioning', async () => {
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     await userEvent.click(screen.getByRole('button', { name: 'Salva seduta' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Inserisci almeno un carico, oppure il conditioning.');
   });
 
+  it('on a weekend day proposes the first session still missing this week', async () => {
+    renderApp({ path: '/registra', today: '2026-10-03' });
+    await screen.findByLabelText('Data');
+    expect(screen.getByLabelText('Settimana')).toHaveValue('1');
+    expect(screen.getByRole('radio', { name: 'B' })).toHaveAttribute('aria-checked', 'true');
+    expect(exerciseCard(/^Bench Press$/)).toBeInTheDocument();
+  });
+
   it('warns when the same session is already logged for that date', async () => {
     renderApp({ path: '/registra', today: '2026-09-28' });
+    await screen.findByLabelText('Data');
     const warn = await screen.findByRole('note');
     expect(warn).toHaveTextContent('Hai già registrato A oggi');
     expect(within(warn).getByRole('link', { name: 'Modifica quella seduta' })).toHaveAttribute('href', '#/registra/2026-09-28-w1-A');
@@ -171,11 +192,14 @@ describe('Registra', () => {
   it('keeps a draft across remounts, restores it with a notice, clears it after save', async () => {
     const user = userEvent.setup();
     const first = renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     await user.type(screen.getByRole('textbox', { name: 'Back Squat, set 1, kg' }), '82,5');
     await waitFor(() => expect(window.localStorage.getItem('palestra.draft.new')).toContain('82,5'));
     first.unmount();
 
     const { repo } = renderApp({ path: '/registra', today: '2026-10-05' });
+
+    await screen.findByLabelText('Data');
     expect(screen.getByText(/Bozza ripristinata/)).toBeInTheDocument();
     expect(screen.getByRole('textbox', { name: 'Back Squat, set 1, kg' })).toHaveValue('82,5');
     const save = vi.spyOn(repo, 'save');
@@ -189,6 +213,7 @@ describe('Registra', () => {
   it('the draft can be discarded, and broken storage never breaks the form', async () => {
     window.localStorage.setItem('palestra.draft.new', '{not json');
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     expect(screen.queryByText(/Bozza ripristinata/)).not.toBeInTheDocument();
     const spy = vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new Error('QuotaExceeded');
@@ -232,6 +257,7 @@ describe('Registra', () => {
   it('guards unsaved changes when leaving', async () => {
     const user = userEvent.setup();
     renderApp({ path: '/registra', today: '2026-10-05' });
+    await screen.findByLabelText('Data');
     await user.type(screen.getByRole('textbox', { name: 'Back Squat, set 1, kg' }), '80');
     const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
     window.location.hash = '#/storico';

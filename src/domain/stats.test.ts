@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { seedSessions } from './seed';
-import { exerciseHistory, lastLoad, personalBest, sessionFromPlan, weekCompletion } from './stats';
+import { exerciseHistory, lastLoad, pendingDay, personalBest, sessionFromPlan, suggestedRef, weekCompletion } from './stats';
 import type { WorkoutSession } from './types';
 
 function s(id: string, date: string, loads: Record<string, number[]>, week: number | null = 1, day: WorkoutSession['day'] = null): WorkoutSession {
@@ -118,5 +118,31 @@ describe('sessionFromPlan', () => {
   });
   it('returns an empty list for a session outside the plan', () => {
     expect(sessionFromPlan(9, 'A', '2026-12-01').exercises).toEqual([]);
+  });
+});
+
+describe('pendingDay / suggestedRef (weekend and off-day logging)', () => {
+  const w1 = [...seedSessions]; // 25/09 C (before the week) + 28/09 A
+  it('pendingDay skips days already logged in the week date range', () => {
+    expect(pendingDay(w1, 1)).toBe('B');
+    expect(pendingDay([...w1, s('b1', '2026-09-29', {}, 1, 'B')], 1)).toBe('C');
+    expect(pendingDay([...w1, s('b1', '2026-09-29', {}, 1, 'B'), s('c1', '2026-10-02', {}, 1, 'C')], 1)).toBeNull();
+    expect(pendingDay(w1, 9)).toBeNull();
+  });
+  it('scheduled days keep their session', () => {
+    expect(suggestedRef(w1, '2026-10-02')).toEqual({ week: 1, day: 'C' });
+    expect(suggestedRef(w1, '2026-09-28')).toEqual({ week: 1, day: 'A' });
+  });
+  it('Saturday and Sunday suggest the first missing session of the week', () => {
+    const withB = [...w1, s('b1', '2026-09-29', {}, 1, 'B')];
+    expect(suggestedRef(withB, '2026-10-03')).toEqual({ week: 1, day: 'C' });
+    expect(suggestedRef(withB, '2026-10-04')).toEqual({ week: 1, day: 'C' });
+    expect(suggestedRef(w1, '2026-10-03')).toEqual({ week: 1, day: 'B' });
+  });
+  it('off day with the whole week done, or outside the cycle, is off-plan', () => {
+    const all = [...w1, s('b1', '2026-09-29', {}, 1, 'B'), s('c1', '2026-10-02', {}, 1, 'C')];
+    expect(suggestedRef(all, '2026-10-03')).toEqual({ week: null, day: null });
+    expect(suggestedRef(w1, '2026-09-26')).toEqual({ week: null, day: null });
+    expect(suggestedRef(w1, '2026-11-28')).toEqual({ week: null, day: null });
   });
 });
