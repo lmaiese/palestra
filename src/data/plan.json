@@ -16,7 +16,7 @@
     },
     {
       "day": "Martedì",
-      "activity": "B — Upper + Pull (panca, OHP)"
+      "activity": "Riposo"
     },
     {
       "day": "Mercoledì",
@@ -28,15 +28,15 @@
     },
     {
       "day": "Venerdì",
-      "activity": "C — Hinge + Power (stacco, clean)"
+      "activity": "B — Upper + Pull (panca, OHP)"
     },
     {
       "day": "Sabato",
-      "activity": "Riposo, o 3° beach se organizzi partita"
+      "activity": "C — Hinge + Power (stacco, clean)"
     },
     {
       "day": "Domenica",
-      "activity": "Riposo"
+      "activity": "Riposo, o C se sabato salta"
     }
   ],
   "progression": [
@@ -92,7 +92,7 @@
   "rules": [
     {
       "title": "Parametri",
-      "text": "- Periodo: Lun 28 set → Dom 22 nov 2026\n- Obiettivo: Forza + potenza per beach volley\n- Frequenza pesi: 3x/settimana\n- Frequenza beach: 2x fissa (Mer + Gio) + 3° giorno variabile\n- Durata seduta: ~60 min\n- Attrezzatura: Bilanciere, rack, panca, manubri, sbarra, vogatore, pedana, box 60cm\n- Assente: KB, trap-bar, assault bike, wall ball, anelli"
+      "text": "- Periodo: Lun 28 set → Dom 22 nov 2026\n- Obiettivo: Forza + potenza per beach volley\n- Frequenza pesi: 3x/settimana\n- Frequenza beach: 2x fissa (Mer + Gio) + 3° nel weekend se capita\n- Durata seduta: ~60 min\n- Attrezzatura: Bilanciere, rack, panca, manubri, sbarra, vogatore, pedana, box 60cm\n- Assente: KB, trap-bar, assault bike, wall ball, anelli"
     },
     {
       "title": "Come funziona questo piano",
@@ -100,11 +100,11 @@
     },
     {
       "title": "Perché questo ordine",
-      "text": "Lo squat sta a 48h dal beach, lo stacco a 24h dopo con due giorni di recupero davanti. La seduta B non ha lavoro assiale pesante, così il martedì non intacca il beach di mercoledì."
+      "text": "Dopo due giorni di beach il venerdì tocca alla B, l'unica seduta senza lavoro pesante sulle gambe. Lo stacco del sabato arriva con un giorno di recupero dalla sabbia e resta a 48h dallo squat del lunedì; lo squat resta a 48h dal beach di mercoledì, con il martedì di riposo in mezzo. Se la C slitta a domenica, il lunedì dopo tieni lo squat a RPE basso: sono due sedute di gambe di fila."
     },
     {
       "title": "C-Lite",
-      "text": "Se sabato giochi, la seduta C del venerdì diventa C-Lite: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e conditioning in zona 2. Non salti la seduta, la svuoti delle cose che ti costano in sabbia."
+      "text": "Se nel weekend giochi a beach, la seduta C diventa C-Lite: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e conditioning in zona 2. Non salti la seduta, la svuoti delle cose che ti costano in sabbia."
     },
     {
       "title": "Beach > Pesi",

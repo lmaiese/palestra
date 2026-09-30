@@ -30,7 +30,7 @@ export const plan: Plan;                                   // da src/data/plan.j
 export function getWeek(n: number): PlanWeek | undefined;
 export function getSession(week: number, day: DayId): PlanSession | undefined;
 export function weekForDate(isoDate: string): number | null; // 1..8 dentro il ciclo, null fuori
-export function defaultDayForDate(isoDate: string): DayId | null; // lun→A, mar→B, ven→C, altri null
+export function defaultDayForDate(isoDate: string): DayId | null; // dalla tabella Settimana Tipo del piano: lun→A, ven→B, sab→C, altri null
 export function isAnchor(exerciseId: string): boolean;
 
 // src/domain/dates.ts           (date ISO senza fusi orari: componenti esplicite, calcoli in UTC)

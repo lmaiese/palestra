@@ -111,6 +111,8 @@ describe('parsePlan on the real plan (F1)', () => {
   it('has week template, progression table (7 rows) and rules', () => {
     expect(plan.weekTemplate).toHaveLength(7);
     expect(plan.weekTemplate[0]).toEqual({ day: 'Lunedì', activity: 'A — Lower Power (squat)' });
+    expect(plan.weekTemplate[4].activity).toMatch(/^B — /);
+    expect(plan.weekTemplate[5].activity).toMatch(/^C — /);
     expect(plan.progression).toHaveLength(7);
     expect(plan.progression[0]).toEqual({ weeks: '1-2', phase: 'Base', topSet: '1x5 @RPE 7-7.5', backOff: '3-4x5 @-10%' });
     expect(plan.progression[6].backOff).toBe('');
@@ -121,7 +123,7 @@ describe('parsePlan on the real plan (F1)', () => {
       expect(titles).toContain(t);
     }
     const cLite = plan.rules.find((r) => r.title === 'C-Lite');
-    expect(cLite?.text).toMatch(/^Se sabato giochi/);
+    expect(cLite?.text).toMatch(/^Se nel weekend giochi a beach/);
     expect(cLite?.text).not.toContain('**');
   });
 

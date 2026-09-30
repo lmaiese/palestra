@@ -87,7 +87,7 @@ describe('Registra', () => {
     expect(screen.getByRole('radio', { name: 'Extra' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByText('Nessun esercizio')).toBeInTheDocument();
     await userEvent.clear(date);
-    await userEvent.type(date, '2026-10-09');
+    await userEvent.type(date, '2026-10-10');
     expect(screen.getByRole('radio', { name: 'C' })).toHaveAttribute('aria-checked', 'true');
     expect(exerciseCard(/^Deadlift$/)).toBeInTheDocument();
   });
@@ -174,7 +174,7 @@ describe('Registra', () => {
   });
 
   it('on a weekend day proposes the first session still missing this week', async () => {
-    renderApp({ path: '/registra', today: '2026-10-03' });
+    renderApp({ path: '/registra', today: '2026-10-04' });
     await screen.findByLabelText('Data');
     expect(screen.getByLabelText('Settimana')).toHaveValue('1');
     expect(screen.getByRole('radio', { name: 'B' })).toHaveAttribute('aria-checked', 'true');

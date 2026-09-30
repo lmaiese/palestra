@@ -89,7 +89,7 @@ export function pendingDay(sessions: WorkoutSession[], week: number): DayId | nu
 }
 
 /**
- * Plan reference for a workout logged on `date`: the scheduled day (Mon A, Tue B, Fri C),
+ * Plan reference for a workout logged on `date`: the scheduled day (Mon A, Fri B, Sat C per the plan),
  * otherwise the first session still missing that week, so off days (weekend included) log the pending one.
  */
 export function suggestedRef(sessions: WorkoutSession[], date: string): { week: number | null; day: DayId | null } {

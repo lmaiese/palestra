@@ -19,9 +19,18 @@ export function weekForDate(isoDate: string): number | null {
   return w ? w.number : null;
 }
 
-const DAY_BY_WEEKDAY: Record<number, DayId> = { 1: 'A', 2: 'B', 5: 'C' };
+const WEEKDAYS = ['domenica', 'lunedì', 'martedì', 'mercoledì', 'giovedì', 'venerdì', 'sabato'];
 
-/** Planned session for a weekday: Monday A, Tuesday B, Friday C, otherwise null. */
+/** Weekday (0 = Sunday) → session, read from the plan's "Settimana Tipo" table ("A — Lower Power ..."). */
+const DAY_BY_WEEKDAY: Record<number, DayId> = Object.fromEntries(
+  plan.weekTemplate.flatMap(({ day, activity }) => {
+    const wd = WEEKDAYS.indexOf(day.trim().toLowerCase());
+    const m = /^([ABC])\s+—/.exec(activity.trim());
+    return wd >= 0 && m ? [[wd, m[1] as DayId]] : [];
+  }),
+);
+
+/** Planned session for a weekday per the plan (currently Monday A, Friday B, Saturday C), otherwise null. */
 export function defaultDayForDate(isoDate: string): DayId | null {
   return DAY_BY_WEEKDAY[weekdayOf(isoDate)] ?? null;
 }

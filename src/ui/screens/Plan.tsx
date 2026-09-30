@@ -186,7 +186,7 @@ function SessionView({ week, day }: { week: PlanWeek; day: DayId }) {
 
       {day === 'C' && (
         <p className="callout">
-          <strong>C-Lite.</strong> Se sabato giochi: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e
+          <strong>C-Lite.</strong> Se nel weekend giochi a beach: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e
           conditioning in zona 2.{' '}
           <a className="link" href={href('/regole?s=c-lite')}>
             Regola completa

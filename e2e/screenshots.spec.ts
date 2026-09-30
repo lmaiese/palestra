@@ -1,15 +1,15 @@
 /// <reference lib="dom" />
 // DoD UI7: screenshots of every route at 375×812 and 1280×800 into docs/screenshots/.
 // Data = the two real SPEC workouts (src/domain/seed.ts) plus two plausible week 1–2 sessions so the
-// history and chart screens show a realistic state. "Today" is pinned to 2026-10-06.
+// history and chart screens show a realistic state. "Today" is pinned to Friday 2026-10-09 (session B).
 import { test, expect, type Page } from '@playwright/test';
 import { resetEmulators, seed, set, signIn, signInOwner, SPEC_SEED } from './helpers';
 import type { WorkoutSession } from '../src/domain/types';
 
 const EXTRA: Omit<WorkoutSession, 'schemaVersion'>[] = [
   {
-    id: '2026-09-29-w1-B',
-    date: '2026-09-29',
+    id: '2026-10-02-w1-B',
+    date: '2026-10-02',
     week: 1,
     day: 'B',
     exercises: [
@@ -37,7 +37,7 @@ const EXTRA: Omit<WorkoutSession, 'schemaVersion'>[] = [
 ];
 const DEMO: WorkoutSession[] = [...SPEC_SEED, ...EXTRA.map((s) => ({ ...s, schemaVersion: 1 as const }))];
 
-const TODAY = '2026-10-06';
+const TODAY = '2026-10-09';
 const SIZES = [
   { w: 375, h: 812, tag: '375' },
   { w: 1280, h: 800, tag: '1280' },
@@ -89,14 +89,14 @@ for (const size of SIZES) {
     }
   });
 
-  test(`Oggi on Friday 02/10 at ${size.tag}: C still to do`, async ({ page }) => {
+  test(`Oggi on Saturday 03/10 at ${size.tag}: C still to do`, async ({ page }) => {
     await page.setViewportSize({ width: size.w, height: size.h });
-    await signInOwner(page, '2026-10-02');
+    await signInOwner(page, '2026-10-03');
     await expect(page.getByRole('heading', { level: 1, name: /Hinge \+ Power/ })).toBeVisible();
     await expect(page.getByRole('link', { name: 'Registra allenamento' })).toBeVisible();
     await expect(page.getByText('2 di 3 sedute registrate')).toBeVisible();
     await expect(page.locator('.state-loading')).toHaveCount(0);
-    await shot(page, 'oggi-venerdi-02-10', size.tag);
+    await shot(page, 'oggi-sabato-03-10', size.tag);
   });
 
   test(`light theme at ${size.tag}`, async ({ page }) => {

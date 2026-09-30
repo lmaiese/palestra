@@ -5,7 +5,7 @@ import { failingRepo, renderApp, renderStatic } from '../test-utils';
 
 describe('Oggi', () => {
   it('shows cycle week, today session, A/B/C completion and anchor loads', async () => {
-    renderApp({ today: '2026-09-29' });
+    renderApp({ today: '2026-10-02' });
     expect(screen.getByText('Settimana 1 di 8')).toBeInTheDocument();
     expect(screen.getByRole('heading', { level: 1, name: /Upper \+ Pull/ })).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /Settimana 1\s*Fondamenta/ })).toBeInTheDocument();
@@ -16,7 +16,7 @@ describe('Oggi', () => {
     expect(await screen.findByText('1 di 3 sedute registrate')).toBeInTheDocument();
     const strip = screen.getByRole('list', { name: /Settimana 1, giorno per giorno/ });
     expect(within(strip).getByText(/28\/09: A, fatta/)).toBeInTheDocument();
-    expect(within(strip).getByText(/29\/09: B, oggi/)).toBeInTheDocument();
+    expect(within(strip).getByText(/02\/10: B, oggi/)).toBeInTheDocument();
     expect(within(strip).getByText(/30\/09: beach/)).toBeInTheDocument();
 
     const squat = screen.getByRole('link', { name: /Back Squat/ });
@@ -27,18 +27,18 @@ describe('Oggi', () => {
     expect(screen.getByRole('link', { name: /Pull-up/ })).toHaveTextContent('mai registrato');
   });
 
-  it('on Friday 02/10 the C of week 1 is still to do, with the C-Lite hint', async () => {
-    renderApp({ today: '2026-10-02' });
+  it('on Saturday 03/10 the C of week 1 is still to do, with the C-Lite hint', async () => {
+    renderApp({ today: '2026-10-03' });
     expect(screen.getByRole('heading', { level: 1, name: /Hinge \+ Power/ })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Registra allenamento' })).toBeInTheDocument();
-    expect(screen.getByText(/Sabato giochi\?/)).toBeInTheDocument();
+    expect(screen.getByText(/Beach nel weekend\?/)).toBeInTheDocument();
     const strip = screen.getByRole('list', { name: /Settimana 1, giorno per giorno/ });
-    expect(within(strip).getByText(/02\/10: C, oggi/)).toBeInTheDocument();
+    expect(within(strip).getByText(/03\/10: C, oggi/)).toBeInTheDocument();
     expect(await screen.findByText('1 di 3 sedute registrate')).toBeInTheDocument();
   });
 
   it('weekend: the session still missing this week can be logged; last Sunday of the cycle does not promise a new A', async () => {
-    const a = renderApp({ today: '2026-10-03' });
+    const a = renderApp({ today: '2026-10-04' });
     expect(screen.getByRole('heading', { level: 1, name: 'Riposo' })).toBeInTheDocument();
     expect(await screen.findByText('Da recuperare')).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Registra B' })).toHaveAttribute('href', '#/registra?w=1&d=B');
@@ -54,8 +54,8 @@ describe('Oggi', () => {
       id, date, week: 1, day, exercises: [], conditioning: '', notes: '', schemaVersion: 1 as const,
     });
     renderApp({
-      today: '2026-10-03',
-      sessions: [done('a', '2026-09-28', 'A'), done('b', '2026-09-29', 'B'), done('c', '2026-10-02', 'C')],
+      today: '2026-10-04',
+      sessions: [done('a', '2026-09-28', 'A'), done('b', '2026-10-02', 'B'), done('c', '2026-10-03', 'C')],
     });
     expect(await screen.findByText(/Prossima: lunedì 5 ott/)).toBeInTheDocument();
     expect(screen.queryByText('Da recuperare')).not.toBeInTheDocument();

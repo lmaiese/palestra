@@ -129,19 +129,20 @@ describe('pendingDay / suggestedRef (weekend and off-day logging)', () => {
     expect(pendingDay([...w1, s('b1', '2026-09-29', {}, 1, 'B'), s('c1', '2026-10-02', {}, 1, 'C')], 1)).toBeNull();
     expect(pendingDay(w1, 9)).toBeNull();
   });
-  it('scheduled days keep their session', () => {
-    expect(suggestedRef(w1, '2026-10-02')).toEqual({ week: 1, day: 'C' });
+  it('scheduled days keep their session (Mon A, Fri B, Sat C)', () => {
     expect(suggestedRef(w1, '2026-09-28')).toEqual({ week: 1, day: 'A' });
+    expect(suggestedRef(w1, '2026-10-02')).toEqual({ week: 1, day: 'B' });
+    expect(suggestedRef(w1, '2026-10-03')).toEqual({ week: 1, day: 'C' });
   });
-  it('Saturday and Sunday suggest the first missing session of the week', () => {
-    const withB = [...w1, s('b1', '2026-09-29', {}, 1, 'B')];
-    expect(suggestedRef(withB, '2026-10-03')).toEqual({ week: 1, day: 'C' });
+  it('Sunday and other off days suggest the first missing session of the week', () => {
+    const withB = [...w1, s('b1', '2026-10-02', {}, 1, 'B')];
     expect(suggestedRef(withB, '2026-10-04')).toEqual({ week: 1, day: 'C' });
-    expect(suggestedRef(w1, '2026-10-03')).toEqual({ week: 1, day: 'B' });
+    expect(suggestedRef(w1, '2026-10-04')).toEqual({ week: 1, day: 'B' });
+    expect(suggestedRef(w1, '2026-09-29')).toEqual({ week: 1, day: 'B' });
   });
   it('off day with the whole week done, or outside the cycle, is off-plan', () => {
-    const all = [...w1, s('b1', '2026-09-29', {}, 1, 'B'), s('c1', '2026-10-02', {}, 1, 'C')];
-    expect(suggestedRef(all, '2026-10-03')).toEqual({ week: null, day: null });
+    const all = [...w1, s('b1', '2026-10-02', {}, 1, 'B'), s('c1', '2026-10-03', {}, 1, 'C')];
+    expect(suggestedRef(all, '2026-10-04')).toEqual({ week: null, day: null });
     expect(suggestedRef(w1, '2026-09-26')).toEqual({ week: null, day: null });
     expect(suggestedRef(w1, '2026-11-28')).toEqual({ week: null, day: null });
   });

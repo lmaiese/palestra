@@ -17,12 +17,13 @@ describe('plan', () => {
     expect(weekForDate('2026-11-22')).toBe(8);
     expect(weekForDate('2026-11-23')).toBeNull();
   });
-  it('maps weekdays to default sessions', () => {
-    expect(defaultDayForDate('2026-09-28')).toBe('A');
-    expect(defaultDayForDate('2026-09-29')).toBe('B');
-    expect(defaultDayForDate('2026-09-30')).toBeNull();
-    expect(defaultDayForDate('2026-09-25')).toBe('C');
-    expect(defaultDayForDate('2026-10-04')).toBeNull();
+  it('maps weekdays to default sessions from the plan week template (Mon A, Fri B, Sat C)', () => {
+    expect(defaultDayForDate('2026-09-28')).toBe('A'); // Mon
+    expect(defaultDayForDate('2026-09-29')).toBeNull(); // Tue rest
+    expect(defaultDayForDate('2026-09-30')).toBeNull(); // Wed beach
+    expect(defaultDayForDate('2026-10-02')).toBe('B'); // Fri
+    expect(defaultDayForDate('2026-10-03')).toBe('C'); // Sat
+    expect(defaultDayForDate('2026-10-04')).toBeNull(); // Sun buffer
   });
   it('knows the anchors', () => {
     expect(isAnchor('deadlift')).toBe(true);

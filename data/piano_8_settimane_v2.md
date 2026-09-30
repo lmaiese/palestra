@@ -11,7 +11,7 @@
 | Periodo | Lun 28 set → Dom 22 nov 2026 |
 | Obiettivo | Forza + potenza per beach volley |
 | Frequenza pesi | 3x/settimana |
-| Frequenza beach | 2x fissa (Mer + Gio) + 3° giorno variabile |
+| Frequenza beach | 2x fissa (Mer + Gio) + 3° nel weekend se capita |
 | Durata seduta | ~60 min |
 | Attrezzatura | Bilanciere, rack, panca, manubri, sbarra, vogatore, pedana, box 60cm |
 | Assente | KB, trap-bar, assault bike, wall ball, anelli |
@@ -27,18 +27,18 @@
 | Giorno | Attività |
 |--------|----------|
 | Lunedì | **A — Lower Power** (squat) |
-| Martedì | **B — Upper + Pull** (panca, OHP) |
+| Martedì | Riposo |
 | Mercoledì | Beach |
 | Giovedì | Beach |
-| Venerdì | **C — Hinge + Power** (stacco, clean) |
-| Sabato | Riposo, o 3° beach se organizzi partita |
-| Domenica | Riposo |
+| Venerdì | **B — Upper + Pull** (panca, OHP) |
+| Sabato | **C — Hinge + Power** (stacco, clean) |
+| Domenica | Riposo, o C se sabato salta |
 
-**Perché questo ordine**: lo squat sta a 48h dal beach, lo stacco a 24h dopo con due giorni di recupero davanti. La seduta B non ha lavoro assiale pesante, così il martedì non intacca il beach di mercoledì.
+**Perché questo ordine**: dopo due giorni di beach il venerdì tocca alla B, l'unica seduta senza lavoro pesante sulle gambe. Lo stacco del sabato arriva con un giorno di recupero dalla sabbia e resta a 48h dallo squat del lunedì; lo squat resta a 48h dal beach di mercoledì, con il martedì di riposo in mezzo. Se la C slitta a domenica, il lunedì dopo tieni lo squat a RPE basso: sono due sedute di gambe di fila.
 
 ### Regola C-Lite
 
-Se sabato giochi, la seduta C del venerdì diventa **C-Lite**: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e conditioning in zona 2. Non salti la seduta, la svuoti delle cose che ti costano in sabbia.
+Se nel weekend giochi a beach, la seduta C diventa **C-Lite**: togli stacco pesante, clean e salti. Tieni Overhead Press, tirata, core e conditioning in zona 2. Non salti la seduta, la svuoti delle cose che ti costano in sabbia.
 
 ### Regola Beach > Pesi
 

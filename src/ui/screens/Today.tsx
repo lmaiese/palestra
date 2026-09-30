@@ -186,7 +186,7 @@ function TodayHero({
       </ul>
       {kind.day === 'C' && !done && (
         <p className="callout">
-          Sabato giochi?{' '}
+          Beach nel weekend?{' '}
           <a className="link" href={href('/regole?s=c-lite')}>
             Fai C-Lite
           </a>
